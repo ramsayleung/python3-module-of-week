@@ -7,19 +7,19 @@ def make_context():
     try:
         yield{}
     except RuntimeError as err:
-        print(' ERROR:', err)
+        print('  Error:', err)
     finally:
-        print(' exiting')
+        print('  existing')
 
 
 print('Normal:')
 with make_context() as value:
-    print('inside with statement:', value)
+    print('  inside with statement:', value)
 
 print('\nHandled error:')
 with make_context() as value:
-    raise RuntimeError('showing example of handling as error')
+    raise RuntimeError('showing example of handling an error')
 
 print('\nUnhandled error:')
-with make_context() as value:
-    raise ValueError('this exception is not handled')
+with make_context as value:
+    raise ValueError('this exception is not handled ')
