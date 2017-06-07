@@ -1,0 +1,1655 @@
+笔者近来一直在阅读关于 Python 标准库的书 -- [[https://pymotw.com/3/][Python3 module of the week]], 阅读有相
+当的一段时间，秉承着作学习总结的宗旨，在阅读的同时，也有记录。虽未阅读完，但是已
+经积累了一定数量的笔记
+* Python 3 Module of the week
+** Text
+*** string
+    包含可作用于文本的常量和类
+**** capwards() 
+     将字符串的所有单词变成大写
+**** template
+     可以使用模板作用和字符串插值相似，通过 *$var* 来表示。在下面的例子中，模板和
+     使用 *%* 操作符的字符串插值，以及格式化输出功能是相似的：
+**** constants
+     string模块包含了很多跟ASCLL字符或者数字集相关的常量
+     
+*** textwrap
+    配合换行符来格式化段落中的文本
+**** fill()/Filling Paragraphs
+     将文本当作输入，然后将格式化后的文本作输出
+     
+**** decent()/Removing Existing Indentation
+     通过使用 *decent()* 来移除已存在的空格，来实现更好的格式化效果(或者是撤销已
+     格式化的文本)
+**** indent()/Indenting Blocks
+     使用indent()现有文本的全部行加上前缀字符，例如给全部的行前面加上 *<*;
+     或者更精确地控制需要添加前缀的行；如把所有字符长度为偶数的行提交前缀：
+**** Hanging Indents 
+     只格式化第一行，而对其他行进行不同的处理：
+**** shorten()/Truncating long text
+     截断过长的本文(超过一定的长度),然后用 *....* 表示过长的文本 (默认值)
+*** re
+    使用正则表达式对文本进行搜索或者修改
+**** search()/Finding Pattern in text
+     使用特定的模式 (正则表达式)对文本进行扫描，
+     如果模式成功匹配，返回 *Match* 
+     对象，如果匹配不成功，返回 *None*. *Match* 对象包含着关于匹配的相关信息；
+     包括原始的输入字符串，使用的正则表达式，以及匹配到的文本的位置：
+**** compile()/Compiling Expressions
+     虽然 *re* 模块提供了很多函数来配合正则表达式操作文本或者字符串，但是如果对
+     常用的正则表达式进行编译，可以更加高效。 *compile()*  函数将一条正则表达式
+     转换成 *RegexObject*:
+**** findall()/Multiple Matches
+     目前为止，我们一直使用的 *search()* 函数只是会匹配文本或者字符串中的单个实例；
+     而 *findall()* 函数会返回所有匹配的子字符串：
+**** fullmatch()/Fullmatch
+     函数 *fullmatch()* 要求输入的字符串要全部跟正则表达式匹配
+**** group()/groupdict()
+     使用 *()* 对字符串进行分组，然后使用 *group()* 函数提取所需的部分；
+     *group(0)* 代表匹配整个正则表达式的字符串而 *groupdict()* 以字典的形式映射
+     正则表达式和匹配结果;
+     使用 *\num* 的语法引用分组;
+     或者使用 *(?(id))* 的语法引用正则表达式的子组;
+**** sub()/modifying Strings with pattern
+     使用 *sub()* 函数将匹配的字符串修改成另外的字符串：
+**** Regular Pattern
+***** Escape Codes
+      | Code | Meaning                            |
+      |------+------------------------------------|
+      | \d   | a digit                            |
+      | \D   | a non-digit                        |
+      | \s   | whitespace(tab,space,newline,etc.) |
+      | \S   | non-whitespace                     |
+      | \w   | alphanumeri                        |
+      | \W   | non-alphanumeric                   |
+      #+BEGIN_SRC python
+      test_patterns(
+	  'A prime #1 example!',
+	  [(r'\d+', 'sequence of digits'),
+	   (r'\D+', 'sequence of non-digits'),
+	   (r'\s+', 'sequence of whitespace'),
+	   (r'\S+', 'sequence of non-whitespace'),
+	   (r'\w+', 'alphanumeric characters'),
+	   (r'\W+', 'non-alphanumeric')],
+      )
+
+      #+END_SRC
+***** Anchoring
+      | Code | Meaning                                           |
+      |------+---------------------------------------------------|
+      | ^    | start of string,or line                           |
+      | $    | end of string,or line                             |
+      | \A   | start of string                                   |
+      | \Z   | end of string                                     |
+      | \b   | empty string at the begining or end of a word     |
+      | \B   | empty string not at the begining or end of a word |
+      
+      #+BEGIN_SRC python
+      from re_test_patterns import test_patterns
+
+      test_patterns(
+	  'This is some text -- with punctuation.',
+	  [(r'^\w+', 'word at start of string'),
+	   (r'\A\w+', 'word at start of string'),
+	   (r'\w+\S*$', 'word near end of string'),
+	   (r'\w+\S*\Z', 'word near end of string'),
+	   (r'\w*t\w*', 'word containing t'),
+	   (r'\bt\w+', 't at start of word'),
+	   (r'\w+t\b', 't at end of word'),
+	   (r'\Bt\B', 't, not start or end of word')],
+      )
+
+      #+END_SRC
+***** Flag Abbreviations
+      | Flag       | Abbreviation | Meaning                                                           |
+      |------------+--------------+-------------------------------------------------------------------|
+      | ASCII      | a            | only match the ascii char (default to match unicode char)         |
+      | IGNORECASE | i            | match both uppercase and lowercase                                |
+      | MULTILINE  | m            | ignore line break(\n) ,apply to the entire string                 |
+      | DOTALL     | s            | the *.* can match the line break(\n)                              |
+      | VERBOSE    | x            | allow comments and extra whitespace to be embedded in the pattern |
+***** Named groups
+      语法 (?P<name> pattern)
+      #+BEGIN_SRC python
+      patterns = [
+	  r'^(?P<first_word>\w+)',
+	  r'(?P<last_word>\w+)\S*$',
+	  r'(?P<t_word>\bt\w+)\W+(?P<other_word>\w+)',
+	  r'(?P<ends_with_t>\w+t)\b',
+      ]
+      #+END_SRC
+***** Looking Ahead of Behind 
+****** look ahead 
+       语法 (?=pattern),例子 *<>* 总是匹配出现，或者不出现的：
+****** negative look ahead
+       语法 *(?!pattern)*,例子在邮件中忽略带有 *noreply* 的邮件：
+****** negative look behind
+       语法 *(?<!pattern)* ,忽略掉带有 *noreply* 邮件：
+****** look behind
+       语法 *(?<=pattern)* ,例子找出 twitter 的主题  (带有  *@*):
+*** difflib -- Compare Sequences
+    对文本进行比较，主要是逐行进行比较
+**** compare()
+     使用 *compare()* 函数对字符串进行比较，输出结果类似 *grep* ;
+     输出结果前面的 *-* ,表明这是第一段文字；输出结果前面的 *+*,表示这是第二段的文字；
+     输出结果前的 *?*,表示两段文字之间的差异：
+**** unified_diff()
+     函数 *unified_diff* 只是输出两段输入之间有差异的那一段：
+**** junk data
+     忽略那些无关紧要的标记或者是空格，tab 键：
+** Data Structures
+*** enum -- Enumeration Type
+**** Basic Usage
+     构造一个 enum 类，并迭代输出：
+     #+BEGIN_SRC python
+     import enum
+     class BugStatus(enum.Enum):
+	 new = 7
+	 incomplete = 6
+	 invalid = 5
+	 wont_fix = 4
+	 in_progress = 3
+	 fix_committed = 2
+	 fix_released = 1
+     for status in BugStatus:
+	 print('{:15} = {}'.format(status.name, status.value))
+     #+END_SRC
+     *enum.Enum* 的子类不方便进行比较，会出现 *TypeError* 异常，如果继承 *enum.IntEnum*
+     就可以对常量类进行比较 (更像数字那样):
+**** Comparing Enums
+     *enum.Enum* 的子类不方便进行比较，会出现 *TypeError* 异常，如果继承 *enum.IntEnum*
+     就可以对常量类进行比较 (更像数字那样):
+**** unique Enumeration Values
+     默认情况下，有相同值的 *enum* 类不会报错，相同的值的常量类互为别名，但是
+     你也可以改变这默认行为，让每个常量类的值都是唯一的，给不同的常量类赋值就会报错：
+     给类添加注解 *@enum.unique*
+**** Creating Enumerations Programmatically
+     有时,程序化地创建常量类比硬编码要更好：
+     #+BEGIN_SRC python
+     import enum
+     BugStatus = enum.Enum(
+	 value='BugStatus',
+	 names=[
+	     ('new', 7),
+	     ('incomplete', 6),
+	     ('invalid', 5),
+	     ('wont_fix', 4),
+	     ('in_progress', 3),
+	     ('fix_committed', 2),
+	     ('fix_released', 1),
+	 ],
+     )
+     #+END_SRC
+**** Non-integer Member Values
+     或者你想创建值不是 *int* 的常量类 (其他复杂值):
+     值为元组或者更复杂的值：
+*** collections -- Constainer Data types
+    collections 模块包含比内置的 list,dict,tuple 更高级的容器类数据结构
+**** ChainMap
+     ChainMap 类管理一系列的字典 (管理字典的容器)，并且可以按它们顺序进行关联值搜索
+**** Counter
+     计算相同值的出现次数，类比其他语言的 *bag* 或者是 *multiset*
+***** most_commont()
+      使用函数 *most_common()* 统计出现最多的元素
+***** Arithmetic¶
+      对 Counter 进行数学加减乘除运算操作
+**** defaultdict
+     给所有不存在的键返回设定的默认值的字典
+**** deque
+     双端队列，可以从左端或者右端数据进行操作 (CRUD)
+***** 查
+      从左边或者右边进行查询输出
+      deques 是线程安全的，所以可以使用多线程，两端同时输出：
+***** 限制队列的容量
+      在给队列限定容量后，新加入超出容量的元素会把最先加入的元素覆盖
+**** namedtuple
+     带有命名属性的 Tuple 子类，常用的情景使用来处理对可能定义的 tuple 元素不了解
+     而造成的访问不便或者你不对下标访问元素不满意。
+     + 定义一个命名元组，并且使用类似类实例的方法来访问 (*.*)
+     + 命名元组默认情况下使不允许重复属性的，不过你也可以在构造器加入 *rename=True*
+     来改变这一默认行为
+     + 对于特殊属性，命名元组以 *_* 开头
+***** _asdict()
+      将命名元组转换成有序字典 (orderdict)
+***** _replace()
+      因为命名元组也是元组，所以也是不可变的。想要改变命名元组中的某个值，可以
+      使用 *_replace* ,将元素进行替换，然后生成新的命名元组
+**** orderedDict
+     能保存 key 插入顺序的字典。因为普通的字典使不会记录键的插入顺序的，所以
+     如果你想记录插录顺序，你就需要 OrderDict.
+***** 相等性
+      如果普通字典 key-value 都相等，那么这两个字典就是相等的。如果两个有序字典
+      key-value 相等，但是插入顺序不等，那么它们使不相等的
+***** move_to_end()/改变顺序
+      把某个元素移动到最后，如果 *move_to_end(last=False)* 那么移动到最前面
+**** collections.abc
+     各类容器类的抽象基类
+     | Class                  | 	Base Class(es) 	    | API Purpose                                                                                 |
+     |------------------------+------------------------------------+---------------------------------------------------------------------------------------------|
+     | Container              | 	  	                 | Basic container features, such as the in operator.                                          |
+     | Hashable               | 	  	                 | Adds support for providing a hash value for the container instance.                         |
+     | Iterable               | 	  	                 | Can create an iterator over the container contents.                                         |
+     | Iterator               | 	Iterable                   | 	Is an iterator over the container contents.                                         |
+     | Generator              | 	Iterator                   | 	Extends iterators with the generator protocol from PEP 342.                         |
+     | Sized 	         | 	                           | Adds methods for containers that know how big they are.                                     |
+     | Callable               |                                    | 	  	For containers that can be invoked as a function.                         |
+     | Sequence               | 	Sized, Iterable, Container | 	Supports retrieving individual items, iterating, and changing the order of items.   |
+     | MutableSequence        | 	Sequence 	          | Supports adding and removing items to an instance after it has been created.                |
+     | ByteString             | 	Sequence 	          | Combined API of bytes and bytearray.                                                        |
+     | Set 	           | Sized, Iterable, Container         | 	Supports set operations such as intersection and union.                             |
+     | MutableSet             |                                    | Adds methods for manipulating the set contents after it is created.                         |
+     | Mapping                | 	Sized, Iterable, Container | 	Defines the read-only API used by dict.                                             |
+     | MutableMapping         | 	Mapping                    | 	Defines the methods for manipulating the contents of a mapping after it is created. |
+     | MappingView            | 	Sized                      | 	Defines the view API for accessing a mapping from an iterator.                      |
+     | ItemsView              | 	MappingView, Set           | 	Part of the view API.                                                               |
+     | KeysView               | 	MappingView, Set           | 	Part of the view API.                                                               |
+     | ValuesView             | 	MappingView                | 	Part of the view API.                                                               |
+     | Awaitable 	     |                                    | 	API for objects that can be used in await expressions, such as coroutines.          |
+     | Coroutine 	     | Awaitable                          | 	API for classes that implement the coroutine protocol.                              |
+     | AsyncIterable 	 |                                    | 	API for iterables compatible with async for, as defined in PEP 492.                 |
+     | AsyncIterator          |                                    | 	AsyncIterable 	API for asynchronous iterators.                               |
+*** array -- Sequence of Fixed-type Data
+    管理一系列固定类型的数据。array 是跟 list 很想的数据结构，除了 array 的所有成员
+    都是固定的原始类型的数据。
+    array 支持的数据类型，以及对应的字节数
+    | Code | 	Type       | 	Minimum size (bytes) |
+    |------+--------------------+------------------------------|
+    | b    | int                |                            1 |
+    | B    | int                |                            1 |
+    | h    | signed short       |                            2 |
+    | H    | unsigned short     |                    	2 |
+    | i    | signed int         |                            2 |
+    | I    | unsigned int       |                            2 |
+    | l    | signed long        |                            4 |
+    | L    | unsigned long      |                            4 |
+    | q    | signed long long   |                    	8 |
+    | Q    | unsigned long long |                    	8 |
+    | f    | float              |                    	4 |
+    | d    | double float       |                    	8 |
+*** heapq -- Heap Sort Algorithm
+    堆排序算法的实现.heapq 使用 list 实现了最小堆算法
+**** heapify()
+     最小堆化
+     你可以使用 heappush 将元素添加到最小堆,但是如果数据已经
+     存在在内存里面,那么使用 heapify() 构造堆将会远比逐个元素
+     添加到堆要高效得多.
+**** heappop()
+     取出最小元素
+     你可以使用 heappop()取出位于堆顶的最小的元素,然后再次
+     调用堆排序算法让堆重新有序
+**** heapreplace()
+     移除处于堆顶的最小值并插入一个新值
+     你只需一个操作就可以取出最小值并插入一个新的值
+**** nlarget()/nsmallext()
+     取出堆中第 n 大(小)的值
+**** merge()
+     将多个有序的 list,合并成一个有序的 list
+*** bisect -- Maintain Lists in Sorted Order
+    维护一条有序的 list,每次添加新的元素之后都会重新排序
+    但是对于那些长列表，每次在插入后排序是远不如对数组一次排序高效的
+    这个模块叫做 bisec 是因为它使用 bisection 算法
+*** queue -- Thread-Safe FIFO Implementation
+    线程安全的先进先出数据结构
+**** FIFO/Queue()
+     基本的队列都是先进先出，将新加进来的元素添加到队列尾部，然后删除元素时从队列
+     头部开始删除
+**** LIFO/LifoQueue()
+     后进先出的队列，像 Stack 那样的数据结构
+**** Priority Queue
+     优先队列。有时我们不想按照元素添加到数据结构的顺序处理数据，而是按照一定的
+     优先级对数据进行处理。我们就可以使用优先队列了
+*** struct -- Binary Data Strtures
+    二进制形式的数据结构：在字符串和二进制之间转换
+    跟正则表达式 *re* 的编译对象一样，在创建 *Struct* 实例的时候就编译可以更高效
+    地使用 Struct
+**** pack()/unpack()
+     将数据字符串转换成二进制 /将二进制转换成字符串
+**** Endianess
+     修改默认的字节顺序
+     | Code | Meaning         |
+     |------+-----------------|
+     | @    | Native order    |
+     | =    | Native standard |
+     | <    | little-endian   |
+     | >    | big-endian      |
+     | !    | Network order   |
+**** buffers
+     对于那些对于性能要求很高的程序，可以避免每次都要分配新的缓冲，而使用分配好的
+     buffer.函数：pack_into() unpack_from()
+*** weakref -- Impermanent References to Objects
+    对象的暂时引用
+    对于那些 "昂贵" 的对象，可以使用弱引用，弱引用不会阻止对象被垃圾回收器
+    回收的;或者说更容易被回收
+**** Reference Callback
+     你可以在 *ref* 的构造器指定函数，然后在引用的对象被删除的时候执行该函数
+**** Finalizing Objects
+     对于那些对资源管理要求更高的系统，可以使用 *finalize* 对象。可以使用 finalize
+     关联到一个对象，然后 *finalize* 的实例会被保留知道关联的对象被删除
+**** atexit()
+     可以使用 *atexit* 决定是否在对象被删除的时候，回调 *finalize* 对象的函数
+**** Proxies
+     有时候使用代理比弱引用要方便。Proxies 可以被当作正常的对象，在对象可以使用
+     的时候再进行调用。你可以把代理传递给 python 的函数库 (library)，而 library
+     无需知道这是一个引用还是真实的对象
+**** Caching Object()
+     可以使用 WeakeyDictionary 和 WeakValueDictionary 为对象创建缓存。
+     WeakValueDictionary 使用弱引用作为键映射相应的值，但其他代码没有使用它们的时
+     候，WeakValueDictionary 里面的键值对就会被 GC 回收
+*** copy -- Duplicate Objects
+    复制对象：提供方法对对象进行深复制或者浅复制
+**** copy()/shadow copied
+     浅复制构造一个新的容器然后把需要复制的对象的引用填充进新容器。例如，当对一
+     个 list 浅复制的时候一个新的 list 会被构造出来并且把用来的元素添加进来 (如果
+     用 *is* 进行判断会发现 list 分别是两个不同的 list,但是它们的值相等，而用 *is*
+     判断 list 里面的元素时，会发现它们值相等，引用也相等，即相同的对象)
+**** deepcopy()/deep copies
+     深复制构造一个新的容易，然后把需要复制对象的 *复制值* 填充进容器。例如，当
+     对一个 list 进行深复制的时候，会构造一个新的 list,并把原来 list 的元素的 *复
+     制值* 添加进新的 list (而使用 *is* 对 两个 list 以及各自的元素进行比较的时候，
+     会发现它们的值都相等，但是都是不同的对象)
+**** customize copy
+     你可以在 *__copy__* 和 *__deepcopy__* 自定义复制的行为
+*** pprint -- Pretty-Print Data Structures
+    美化输出数据结构
+    pprint 模块包含一个用来生成更赏心悦目的数据结构输出的 "pretty printer".美化
+    格式后输出的数据不但易于阅读，而且也是能被解释器正确解释的。pprint 的输出结果
+    会尽量保持单行，多行分隔的时候也尽量保持缩进
+**** pprint()
+     格式化数据后输出
+**** pformat()
+     有时候你可以是想美化数据，并且输出到流 (类似 logging),你就可以使用 *pformat()* 函数
+**** Arbitray class
+     如果你的 class 定义了 *__repr__* 你也可以使用 pprint() 输出类信息
+**** limiting Nested Output
+     对于那些非常复杂或者嵌套非常多的数据结构，即使格式化美化也是很难处理的，这个时候
+     你也可以指定 *depth* 显示嵌套数据的层数
+     ~pprint(data,depth=2))~
+**** Controlling output width
+     + 默认格式化后的文本是 80 个字符的长度，但是你也可以通过设置 *width* 变量修改
+       默认长度
+     + 你也可以设置 *compact* 变量值为 *True* 来让输出数据尽量紧密，单行输出，而
+       不是总是每个数据结构都多行输出
+** Algotithms
+*** functools -- Tools for Manipulating Functions
+    操作函数的函数：这个模块提供了很多函数在不重写代码的前提下来包装或者扩展现有
+    的函数
+**** Decorator
+     funtools 中的 partial 类可以用默认的参数包装一个可调用对象 (callable object)
+     包装后的函数可以想原来未包装的函数一样接受参数，你也可以给函数指定特定的参数
+     覆盖掉默认的参数
+***** update_wrapper()
+      默认情况下 partial 对象是没有 *__name__* 和 *__doc__* 属性的，这样会造成被
+      包装后的函数因为缺乏相关信息而难以调试。使用 *update_wrapper* 函数可以把
+      原有函数的属性复制或者提交到 partial 对象
+***** Other callables
+      partial 也可以作用与其他可调用对象 (callable object) 而不是单独的函数
+***** partialmethod()
+      *partial()* 返回一个可以直接被使用的可调用对象， *partialmethod* 返回一个可以
+      被当作未绑定到某个对象的方法来使用的可调用对象
+***** wraps()
+      *wraps()*,你会觉得 *wraps()* 函数特别有用，特别是你发现包装器是有副作用，就是
+      被 decorated 的函数已经变成另外一个函数了，而使用 *wraps()* 这个函数是可以消除
+      这种副作用的
+**** Comparison
+     在 Python2 的时候，需要在类里面定义一个 *__cmp__()* 函数返回 -1 0 1 来比较类
+     中的元素。Python3 废弃了 *__cmp__()*  函数，并通过 *functools* 提供了很多很
+     方便比较元素的函数
+***** total_ordering()
+      *functools* 模块中的 *total_ordering* 装饰器提供了一切更有效的比较方式，但
+      是要进行比较的类中一定要实现 *__eq__* 和一个其他的比较函数 (例如 *__gt__*)
+      .因为装饰器要通过调用这些比较函数来进行比较的，如果没有实现，就会返回 *NotImplemented*
+      并且尽量调用其他比较的方法
+***** cmp_to_key()
+      旧式的比较函数在 Python3 已经废弃了，要调用 *__cmp__* 的函数，例如 *sort()* 也不在
+      支持了，但是你可以使用 *cmp_to_key* 函数把那些需要调用比较函数的函数转换成返回
+      ~collation key~ 的函数。
+**** Caching
+***** lru_cache()
+      *lru_cache* 装饰器使用最近最少使用 (least-recently-used lru)算法包装函数。
+      函数的参数被用作生成 hash 键，然后映射到函数的调用结果，如果下次要调用相同
+      参数的函数，那就返回缓存而不是再次调用。可以通过 *cache_info()* 查看缓存命中
+      ,通过 *cache_clear()* 清除缓存；如果你不想那些长期运行的程序产生越来越多的
+      缓存，你可以设定一个缓存最大值 (默认是 128)，超过最大值，旧值就会被新值取代。
+**** Reducing a Data Set
+     *reduce()* 函数把一个可调用对象和一系列的数据当作输入并且通过使用可调用对象
+     操作那一系列的数据，并且累加结果并且输出。一个可选的初始参数就是累加器的默认值，
+     如果不指定，默认为 0
+     #+BEGIN_SRC python
+     functools.reduce(a_callable_object,data,optional_argument)
+     #+END_SRC
+**** Generic Functions
+     想 Python 这种动态语言是可以根据不同的参数类型执行不同的操作的，特别是操作一
+     系列数据和单个数据时的 *functools* 模块提供一个 *singledispatch()* 函数来注
+     册一系列的通用函数，而这些函数是可以根据第一个参数的类型进行切换的
+*** itertools -- Iterator Functions
+    迭代函数： *itertools* 模块提供了一系列操作数据集的函数*itertools* 模块的函
+    数借鉴函数式编程语言的很多特性，旨在提供更快和更高效使用内存的基本迭代的算法
+    *itertools* 提供比普通的 list 更能高效利用的函数，使用延迟处理技术就无需把所
+    有的数据加载进内存，减少大数据集交换数据的次数和其他的副作用，提高性能
+**** Merging and Splitting Iterators
+***** chain()
+      把多个迭代器当作参数，并返回处理所有输入的单个迭代器 (即把多个迭代器合成单
+      个迭代器)
+***** chain.from_iterable()
+      如果事先无法得到需要组合的迭代器，或者是你想延迟处理，你可以使用
+      *chain.from_iterable* 来构造 chain
+***** zip()
+      内置的 *zip()* 也可以把若干个迭代器组合成一个元组
+***** zip_longest()
+      *zip()* 在第一个迭代器调用完数据之后就会停止执行，如果你想那些剩下的迭代器
+      也处理了，你可以使用 *zip_longest* ,它只会在数据最多的那个迭代器都用尽数
+      据时才停止执行
+***** islice()
+      *islice()* 函数返回一个包含按索引从输入迭代器选择数据的迭代器，有点绕
+      :(.The islice() function returns an iterator which returns selected items
+      from the input iterator, by index.
+***** tee()
+      返回若干个独立的迭代器 (默认是两个),而这些迭代器又是基于输入迭代器的。
+      *tee()* 函数跟 Unix 的 tee 命令很相似， *tee()* 函数生成的迭代器可以同时作
+      用于不同的算法。生成新的迭代器后，原来的迭代器就不应该继续使用了
+**** Converting Inputs
+***** map()
+      内置的 *map()* 函数可以使用传入的迭代器对所有的数据进行迭代处理
+***** starmap()
+      函数 *starmap()* 的功能跟 *map()* 很相似，只不过不同于 *map()* 把多个迭代
+      器构造成元组，它把在单个迭代器里面的数据分割出来，然后调用 ~*~ 语法的函数
+**** Producing New Values
+***** count()
+      *count()* 函数返回一个可以无限输出连续数字的迭代器。用法： *count(start,step)*
+      跟 *range()* 函数相似，但是没有上界
+***** cycle()
+      *cycle()* 函数返回一个无限循环输入参数的迭代器。因为 *cycle()* 要记录输入
+      迭代器的所有内容，所以如果迭代器包含的数据非常多的话， *cycle()* 是相当耗
+      费内存的
+***** repeat()
+      *repeat()* 函数会无限重复输入的数据，除非你指定一个重复次数
+***** repeat()+zip()/map()
+**** Filtering
+***** dropwhile()
+      *dropwhile()* 函数会返回一个迭代器，该迭代器会在第一次条件判断为假的时候输
+      出输入迭代器的元素
+***** takewhile()
+      *takewhile()* 函数刚好与 *dropwhile()* 函数相反，只要条件判断为真，它就会
+      一直输出输入迭代器的元素，只要条件为假，就停止输出
+***** filter()
+      *filter()* 函数返回一个迭代器，只有条件判断为真是，它才会输出输入迭代器的元素
+***** filterfalse()
+      与 *filter()* 相反， *filerfalse()* 会返回一个迭代器，只包含条件测试为假的
+      元素
+***** compress()
+      提供了一种与众不同的过滤数据的方式；不同于执行一个函数来过滤，它可以使用其
+      他的迭代器的值来决定什么数据应该保存，什么数据应该忽略
+**** Grouping Data
+***** groupby()
+      *groupby()* 函数返回一个迭代器，该迭代器输出一系列按照某个键进行分组的数据
+**** Combining Inputs
+***** accumulate()
+      *accumulate()* 函数处理输入的迭代器，把第 n 个参数和第 n+1 个参数传递给一个
+      函数并且输出函数调用结果，默认的函数时将两个参数相加
+      #+BEGIN_SRC python
+      # accumulate([1,2,3,4,5]) --> 1 3 6 10 15
+      # accumulate('abcde') --> 'a', 'ab', 'abc', 'abcd', 'abcde'
+      #+END_SRC
+      你也可以自定义函数并且传递给 *accumulate()*
+***** product()
+      如果要处理多个序列的迭代，你可以使用 *product()* 函数，该函数会计算输入参
+      数的笛卡儿积
+      #+BEGIN_SRC python
+      # product('ABCD', 'xy') --> Ax Ay Bx By Cx Cy Dx Dy
+      # product(range(2), repeat=3) --> 000 001 010 011 100 101 110 111
+      #+END_SRC
+***** permutations()
+      *permutations* 函数可以计算输入迭代器的给定长度的排列组合，默认是计算全排列。
+***** combinations()
+      combinations() 函数根据输入产生元素不重复的排列，只是输入都是唯一的，输出
+      结果就不会重复
+      #+BEGIN_SRC python
+      # combinations('ABCD', 2) --> AB AC AD BC BD CD
+      # combinations(range(4), 3) --> 012 013 023 123
+      #+END_SRC
+***** combinations_with_replacement()
+      *combinations()* 不会重复排列元素自身，但是 *combination_with_replacement()* 
+      函数可以排列组合元素的时候，重复自身元素
+      #+BEGIN_SRC python
+      # combinations_with_replacement('ABC', 2) --> AA AB AC BB BC CC
+      #+END_SRC
+*** operator -- Functional Interface to Built-in Operators
+    内置操作符的函数接口 
+**** Logical Operations
+     有很多函数可以判断一个参数的布尔值，对参数取反，或者是比较两个参数是否相等
+***** not_()
+      *not_()* 函数包含下划线，区别 Python 的 *not* 关键字
+***** truth()
+      如果参数为真返回真，如果参数为假，返回假
+***** is_()
+      实现和关键字 *is* 相同的功能，比较参数是否相等
+***** is_not()
+      比较参数是否不相等
+**** Comparison Operators
+***** lt(a,b)
+      *less than* a 是否小于 b
+***** le(a,b)
+      *less equal* a 是否小于或等于 b
+***** eq(a,b)
+      *equal* a 是否等于 b
+***** ne(a,b)
+      *not equal* a 是否不等于 b
+***** ge(a,b)
+      *great equal* a 是否大于或等于 b
+***** gt(a,b)
+      *great than* a 是否大于 b
+**** Arithmetic Operators
+     数学运算
+***** Positive/Negative
+****** abs(a)
+       *absolute* 对 a 取绝对值
+****** neg(a)
+       *negative* 对 a 取负数 即 -a
+****** pos(a)
+       *positive* 对 a 取正数 即 +a,如果 a 原来是负数，结果也是负数
+***** Arithmetic
+      算术运算
+****** add(a,b)
+       a b 相加
+****** floordiv(a,b)
+       即 a//b 整除，对商取整
+****** mod(a,b)
+       即 a%b
+****** mul(a,b)
+       即 a*b
+****** pow(c,d)
+       即 c**d
+****** sub(b,a)
+       即 b-a
+****** truediv()
+       即 a/b 浮点数相除
+***** Bitwise
+      位运算
+****** and_(c,d)
+       c 和 d 的二进制位做与运算 (and)
+****** invert(c)
+       c 的二进制位取反
+****** lshift(c,d)
+       c 左移 d 位
+****** rshift(c,d)
+       c 右移 c 位
+****** or(c,d)
+       c,d 作或运算
+****** xor(c,d)
+       c,d 作异或运算
+**** Sequence Operators
+     对于 operator 对序列的操作，可以分成下面 4 种：构造一个序列，在序列搜索元素，
+     获取元素，从序列中移除元素
+***** concat(a,b)
+      组合 a,b 两个元素
+***** contains(a,"d")
+      序列 a 中是否包含元素 "d"
+***** countOf(a,"d")
+      在序列 a 中元素 "d" 出现的次数
+***** indexOf(a,"d")
+      在序列 a 中元素 "d" 第一次出现的位置
+***** getitem(a,1)
+      在序列 a 中获取索引位置为 1 的元素
+***** setitem(a,1,"d")
+      将序列 a 索引位置为 1 的元素设为 "d"
+***** delitem(a,1)
+      删除序列 a 中索引位置为 1 的元素 (索引从 0 开始)
+**** In-place Operators
+     除了标准的操作符以外，通过特殊的操作符，例如 *+=*,很多类型的对象都支持替换操作
+***** iadd(a,b)
+      等同于 a+=b
+***** iconcat(a,b)
+      等同于 a+=b,适用于序列
+**** Attribute and Item "Getters"
+     operator 模块最不常用的特性之一就是 *getter*.对于那些运行时构造的可调用对象，
+     *getter* 可以获取对象的属性或者时序列的内容，对于那些不想调用太多 lambda 或
+     者 Python 函数的迭代器或者生成器尤其有用
+**** Combining Operators and Custom Classes
+     operator 模块的函数不仅支持内置的数据类型，也支持实现了相应接口的自定义类型
+*** contextlib -- Context Manager Utilities
+    操作上下文管理器的工具集
+**** Context Manager API
+     上下文管理器负责管理一个代码块的资源，在运行到代码块的时候创建资源，在离开
+     代码块的时候关闭资源，例如：
+     #+BEGIN_SRC python
+     with open('/tmp/pymotw.txt','wt')  as f:
+	  f.write('context go here')
+     #+END_SRC
+***** __enter__()
+      当开始运行 *with* 里面的代码的时候，执行 *__enter__()*
+***** __exit__()
+      当结束执行 *with* 里面的代码的时候，执行 *__exit__()* 函数清理资源使用
+      *with* 语法的上下文管理器比使用 *try:finally* 代码块更加紧湊，因为无论是否抛
+      出异常， *__exit__()* 函数都是会执行的；而 *__enter__()* 会返回关联在 *with*
+      语句的对象
+**** Context Manager as Function Decorators
+     *ContextDecorator* 类可以普通的上下文管理器类当作装饰器使用；但是需要注意的
+     是把上下文管理器当作装饰器使用， *__enter__()* 函数返回的值对于被装饰的函
+     数而言，是无效的。这个常见的装饰器是有很大的区别的
+**** From Generator to Context Manager
+     比较常见的创建上下文管理器的方法是实现 *__enter__()* 和 *__exit__()* 函数。
+     但是每次都要实现这两个函数未免太过烦琐，这个时候，可以使用
+     *contextmanager()* 装饰器把一个生成器变成一个上下文管理器
+**** Closing Open Handles
+     *file* 类支持上下文管理器，但是对于其他的需要打开操作的类或者对象就不一定支
+     持了，比较典型的例子就是 *urllib.urlopen()*;还有其他的一些 "历史遗留" 的使
+     用 *close()* 方法的类是没办法直接使用上下文管理器的 api 的。对于这种情况，
+     可以使用 *closing()* 方法创建一个上下文管理器
+**** Ignoring Exceptions
+     很多时候，你都希望可以忽略由类库抛出的异常，因为这些异常一般都是表明已经实
+     现预期的状态，或者是其他无关要紧的信息。忽略异常最常用的策略使用
+     *try:except* 和 *pass*:
+     #+BEGIN_SRC python
+     try:
+	 dothing_raise_error()
+     except Exception:
+	 pass
+     #+END_SRC
+     你也可以使用 *contextlib.suppress()* 函数指定 *with* 代码中需要忽略的异常
+**** Redirecting Output Streams
+     对于那些设计不友好的库类，都是直接输出到 *sys.stdout* 或者是 *sys.stderr*
+     并且是没有提供参数来改变输出的目标的。值得欣慰的是，可以使用
+     *redirect_stdout()* 和 *redirect_stderr()* 上下文管理器重定向输出目标，并且
+     无需改动原函数。需要特别注意的是 *redirect_stdout()* 和 *redirect_stderr()*
+     都不是线程安全的，需要小心使用
+**** Dynamic Context Manager Stacks
+     现在大部份的上下文管理器都是在一个对象上操作一次，例如单个文件或者是数据库
+     连接；这意味着这些需要被管理的对象都是可以提前获取的。但是，某些情况下，一
+     个程序可能需要在上下文创建多个未知的对象，并且在结束操作是统一清理所有的资
+     源。在这种情况下，可以使用 *ExitStack* 管理这些动态类。 *ExitStack* 以栈的
+     形式保存需要清理的回调函数 (callbacks)，而这些以与入栈顺序相反的顺序被调用。
+     使用 *ExitStack* 跟嵌套多层 *with* 语句一样的，除了这一切都是动态生成的之外
+**** Arbitrary Context Callbacks
+     此外 *ExitStack* 还支持为任意顺序的调用对象关闭上下文，这使关闭资源变得更加
+     容易；因为这已经不是通过上下文管理器来控制了
+**** Partial Stacks
+     有时，当需要创建很复杂的上下文的时候，如果上下文未能成功创建，中断即将进行
+     的清理资源操作可能更加有必要；因为可以再稍等一会，直到所有的设置都成功完成
+     再清理资源也不迟。例如，当一个操作需要若干长时间存活的网络连接，最好不要在
+     一个连接失败后就开始清理资源。在这种场景下，可以使用 *pop_all()* 函数。
+     *pop_all()* 函数可以清除调用栈中所有的上下文管理器和回调对象，然后，返回一
+     个已经将相同的上下文管理器和回调对象入栈的栈。新栈的 *close()* 函数可以在原
+     有的栈被清空后调用，以清理所有的资源
+** Dates and Time
+*** time -- Clock Time
+    用来计算时钟时间的函数
+    
+    *time* 模块提供若干不同类型的时钟，每个都是对应不同的用途。像 *time()* 这样
+    标准的系统调用报告的是系统的 "挂钟 (wall time)"时间;而 *monotonic()* 时钟被
+    用来测量长时间运行的进程消耗的时间，因为它保证了即使系统时间改变了，时钟也不
+    会往回走.如果想进行性能测试的话， *perf_counter()* 函数可以对间隔尽量短的时
+    间进行测量，保证了精确性。可以通过 *clock()* 函数返回 CPU 时间，而
+    *process_time()* 返回处理器时间和系统时间
+**** Comparing Clocks
+     时钟的实现细节因平台而异。可以使用 *get_clock_info()* 获取关于具体实现的基
+     本信息。
+**** Wall Clock Time
+     *time* 模块的核心之一就是 *time()* 函数，该函数以浮点数的形式返回从 Unix 系
+     统的 1970 年 1 月 1 日 时起已经过去的秒数
+**** Monotonic Clocks
+     因为 *time()* 依赖于系统时钟，但是系统时钟可能会因为多台电脑之间的时钟同步
+     而造成改变；而期间重复地调用 *time()* 就可能会导致时间值增大或减少，就会导
+     致用来测量程序运行时间时出现误差。为了避免出现这种问题，最好的方法时使用
+     *monotonic()*,该函数的时间值总是增大的。
+**** Processor Clock Time
+     *time()* 函数返回挂钟时间，而 *clock()* 返回处理器时钟时间，它返回的值反映
+     了程序真正使用 CPU 的时间
+**** Performance Counter
+     拥有高精度的时钟来衡量程序性能是非常重要的，在 Python 可以使用
+     *perf_counter()* 函数
+**** Time Components
+     在某些情况下，保存已经过去的时间是非常有用额，但是也有需要获取日期单独部分
+     (例如，年，月，日)的情形。time 模块定义了 *struct_time* 来保存单独的时间部
+     件，所以这使获取时间的单独部分变得相当容易
+***** gmtime()
+      返回 UTC 的当前时间
+***** localtime()
+      返回当前时区的当前时间
+***** mktime()
+      获取 struct_time 并转化成浮点数的表示形式
+**** Working with Time Zone
+     获取当前时间的函数依赖于所使用的时区，可以在程序中指定时区或者使用默认的时
+     区；更改时区并不会改变真实的时间，只是改变了时间的显示而已。如果想要修改时
+     区的话，先设置环境变量 *TZ*,然后调用 tzset() 函数。可以很容易地使用不同时区，
+     并且让底层的库自动派生其它的信息
+**** Parsing and Formating Times
+     使用 strptime() 和 strftime() 两个函数可以在 struct_time 和时间的字符串表示
+     值之间转换。有很多的格式化说明分别支持不同类型的输入和输出。
+*** datetime -- Data and Time Value Manipulation
+    操作日期和时间值
+    
+    *datetime* 模块包含了可以单独或者是组合操作日期和时间的函数和类
+*** calendar -- Work with Dates
+    *calendar* 木块定义了封装了计算例如给定的某个月或者某一年中日期的值的
+    ~Calendar~ 类。此外， ~TextCalendar~ 和 ~HTMLCalendar~ 可以输出预先格式化的
+    结果。
+**** prmonth()
+     调用 ~TextCalendar~ 的~prmonth()~ 函数输出格式好的某一个月的日期。也可以在
+     构造 ~TextCalendar()~ 类的时候，传递参数指定一周的开始时间，例如
+     ~calendar.SUNDAY~ 就以周未为一周的开始。
+**** formatmonth()
+     调用 ~HTMLCalendar~ 的 ~formatmonth()~ 类可以产生一个 HTML 表单。虽说输出的
+     结果跟纯字符串没有差别，但是它是用 HTML 标签包含的。每一个表格都有一个关联
+     到星期的日期的类属性，所以 HTML 可以用 CSS 装饰。
+**** customize output
+     如果想自定义输出而不是使用默认的输出，可以使用 ~calendar~ 计算日期并且设置
+     它的值到星期和月份范围里，然后迭代输出结果。 ~Calendar~ 类的 ~weekheader~
+     ~monthcalendar~ 和 ~yeardays2calendar~ 函数在做这工作的时候很有用
+**** Locales
+     如果想使用特定的时区而不是默认的时区，可以使用 ~LocaleTextCalendar~ 或者 ~LocaleHTMLCalendar~
+**** Calculating Dates
+     虽然 *calendar* 模块可以输出常用的日期的不同格式，不过如果能提供函数记录特
+     定的日期，例如计算特定事件的日期。例如 Python Atlanta 用户组每个月的第二个
+     星期都会举行聚会。想要计算一年中的聚会日期，可以使用 ~monthcalendar~ 函数。
+     而每周第一天默认是星期一，你可以通过 ~monthcalendar()~ 函数修改默认值。
+** Mathematics
+*** decimal - Fixed and Floating Point Math
+    *demical* 模块实现了大部分熟悉的固定和浮点数算术运算，而不是大部分计算机实现
+    的被程序员所熟知的 IEEE 浮点数版本。一个 Decimal 实例可以精确地表示任何的数
+    字，或者是向上或向下取整，以及限制一个数字的位数。
+**** Decimal
+     Decimal 值是用 Decimal 类来表示的。它的构造器使用一个 integer 或者 string
+     值当作构造参数。浮点数可以在被创建成 ~Decimal~ 前转换成字符串，方便调用者解
+     决硬件可能无法表示相应的浮点数的问题。此外，类方法 ~from_float()~ 可以转换
+     成精确的 decimal 形式。Decimal 也可以通过包含着标志符 (0 代表正，1 代表负),
+     数字元组，和一个整型指数的元组来创建。虽说基于元组创建 Decimal 不太便利，但
+     是它可以在不损失精度值的情况下表示 Decimal 值。元组形式的值可以通过网络进行
+     传输或者是保存到不支持高精度值的数据库，然后再转换成 demical
+**** Formatting
+     Decimal 也支持 Python 的字符串格式化协议，使用和其他数字类型的数据结构一样
+     的语法和选项。
+**** Arithmetic
+     Decimal 重载了简单的数字操作符，因为 Decimal 的实例可以以与内置数字类型数据
+     结构一样地方式进行算术操作
+**** Special Values
+     除了常规的数字值之外， Decimal 还可以表示若干特殊值，例如无穷大的正数或者是
+     负数，不是数字的值 (not a number--NaN),以及 0
+**** Context
+     除了使用 *decimal* 的默认值之外，还可以通过使用上下文 (context) 覆盖它的设
+     置，例如精度值，取整操作，错误处理，等等。上下文可以作用于一个线程或
+     者代码块里的所有 ~Decimal~ 实例
+***** Current Context
+      如果想获取当前的全局上下文，可以使用 ~getcontext()~ 函数。
+***** Precision
+      上下文的 ~prec~ 属性控制一个新产生的数据的精度值。
+***** Rounding
+      在进行取整的时候，有若干个选项可以舍入到目标范围内：
+      + ROUND_CEILING
+	总是向着无穷大向上取整
+      + ROUND_DOWN
+	总是向着 0 取整
+      + ROUND_FLOOR
+	总是向着无穷小向下取整
+      + ROUND_HALF_DOWN
+	四舍五入
+      + ROUND_HALF_EVEN
+	跟四舍五入类似，只是当值等于 5 的时候，检查前一位数值，而不是取1.
+      + ROUND_HALF_UP
+	跟四舍五入类似，只是当值等于 5 的时候，取为0
+      + ROUND_UP
+	向 1 取整
+      + ROUND_05UP
+	如果值为 0-5, 则取为1,否则则取0.
+***** Local Context
+      可以通过 *with* 语句把上下文应用到代码块中。
+***** Per-Instance Context
+      上下文可以用来构造 ~Decimal~ 实例，该实例会继承原上下文的精度和取整参数。
+***** Threads
+      全局的上下文是线程安全的，所以每个线程都可以配置成使用不同的值。
+*** fractions - Rational Numbers
+    一个可以操作有理数的类
+**** Creating Fraction Instances
+     创建分数的方法有很多，最简单的就是通过传递一个分子和分母给
+     *fractions.Fraction*. 另外一个创建分数的方式就是给 *fractions.Fraction* 传
+     递一个 分子/分母 形式的字符串。而除了 分子/分母形式的字符串之外，还可以是高
+     精度整数 (decimal) 或者是以点号分隔的浮点数。除了不是一个数字 (not a number
+     NaN)和无限的数之外，其他能被 *float()* 解析的数都可以传递给 *Fracion*. 除此
+     之外，也可以直接传递浮点数和高精度整数给 *Fraction*
+**** Arithmetic
+     分数一旦被初始化，就可以使用算术运算了。
+**** Approximating Values
+     *Fractions* 的其中一个有用的特性就是可以将浮点数转换为近似有理数。
+*** random - Pseudorandom Number Generators
+    Purpose: 实现若干个伪随机数生成器
+    *random* 模块提供了基于 Mersenne Twister 算法的快速伪随机数生成器。最初是开发用
+    来生成 用于 Monte Carlo 模拟的输入数据，而 Mersenne Twiser 生成了接近均匀分布的
+    随机数，使 *random* 可以广泛用于各种应用。
+***** Generating Ramdom number
+      ~random()~ 函数从生成序列返回下一个的随机的浮点数，所有的返回值都 0<=n<1.0. 而
+      如果想返回指定范围的随机浮点数，可以使用 ~uniform()~ 函数。
+***** Seeding
+      在调用的时候， ~random()~ 函数每次返回不同的值。所以它适合用来产生唯一的值，但
+      是有时候，可能需要以不同的算法来处理相同的值。可以通过程序生成一个值，然后保存
+      并另外处理该数值。可能对于数量非常大的数据，这样不是很实际，但是 *random* 模块
+      包含 ~seed()~ 函数来初始化伪随机数生成器，就可以生成相同值。
+***** Saving State
+      ~random()~ 函数使用的伪随机算法的内部状态可以被保存下来，以用来控制接下来产生
+      的数据。在继续产生随机数之前恢复先前保存的状态可以减少产生重复值的可能性。
+      ~getstate()~ 函数返回值可以通过 ~setstate()~ 函数被用来重新初始随机数生成器。
+***** Random Integers
+      ~random()~ 函数产生的是浮点数。虽然可以把 ~random()~ 函数结果转化成整数，但是
+      直接使用 ~randint()~ 函数来生成整数会更加方便。 ~randint()~ 的两个参数就是生成
+      随机数的范围。也可以使用 ~randrange()~ 来直接生成一定范围的随机数。 除了起始值
+      和结束值之外，~randrange()~ 也支持 ~step~ 参数： ~randrange(start,stop,step)~
+***** Picking Random Items
+      随机生成器的一个常用作用就是在一系列的可迭代值随机选择一项，即使那些可迭代值不
+      是数字。 *random* 模块有一个 ~choice()~ 函数用来在序列中选择元素。也可以使用
+      ~shuffle()~ 函数打乱序列中的函数。
+***** Sampling
+      许多模拟操作需要在输入中选取一些样本数据，而 ~sample()~ 函数可以在不重复数值和
+      不修改输入序列的情况下生成样本数据
+***** Multiple Simultaneous Generators
+      除了模块级别的函数之外， *random* 模块也有一个 ~Random~ 类用来管理若干个随机数
+      生成器的内部状态。之前提到的所有函数也都可以当作 ~Random~ 实例的方法，并且每一
+      个实例都可以被初始化并单独使用，无需被其他的随机数生成器的返回值所干扰。如果一
+      个系统有优秀的随机值种子，实例都可以以唯一的状态开始生成操作。但是，如果没有好
+      的随机值生成器，实例可能会以当前时间当作种子值，就会产生相同的值。
+***** SystemRandom
+      某些操作系统可以提供熵增的随机数生成器，而这些生成器可以通过 *random* 模块的
+      ~SystemRandom~ 类引入， ~SystemRandom~ 类有和 ~Random~ 类一样的 API.
+      ~SystemRandom~ 类产生的序列是不会重现的，因为随机值是由系统而不是应用产生的
+      (实现上， ~seed()~ 函数和 ~setstate()~ 函数也不会起作用)
+*** statistics -- Statistical Calculations
+    目的： 实现通用的统计计算。
+    
+    *statistics* 模块实现了很多针对不同的数据类型 (int, float, Decimal, 和
+    Fraction)通用的统计公式
+**** Averages
+     *statistcs* 模块支持三种形式的均值：平均值，中位数，众数
+***** mean()
+      ~mean()~ 函数用来计算平均值。如果输入数据是整型和浮点型，平均值就一定是浮点
+      型。而 Decimal 和 Fraction 的平均值取决于输入的数值类型
+***** mode()
+      ~mode()~ 方法计算一组数据中的众数。因为 ~mode()~ 函数把输入的数据当作离散数
+      据，然后计算其中元素重复出现的次数，所以输入数据不一定需要是数字
+***** median
+      有四种计算中位数的函数：
+****** median()
+       当元素的个数是偶数的时候，中位数取两个中位数的平均值
+****** median_low()
+       当元素的个数是偶数的时候，中位数取两个中位数的较小值
+****** median_high()
+       当元素的个数是偶数的时候，中位数取两个中位数的较大值
+****** median_grouped()
+       将输入的数据看作连续的数据，然后通过给定的间隔值，计算出排在 50% 的数值。
+**** Variance
+     在统计中使用方差来表示一个集合中各个元素与平均值的分散程度。 Python 提供了两
+     个集合的函数来计算方差和标准差，取决于该数据集是否代表着全部数据或者是抽样数
+     据。
+** The File System
+*** os.path -- Platform-independent Manipulation of Filenames
+    使用 *os.path* 模块的方法使用 *os.path* 模块的方法可以很容易编写跨平台操作文
+    件的代码。即使不打算编写跨平台的代码也应该使用 *os.path* 模块以提供可靠的文件名
+    解析
+**** Parsing Paths
+     *os.path* 模块中的第一部分的函数可以被用来解析文件名，将它们分解成不同的模
+     块。意识到这些函数并不依赖实际存在的路径是很重要的，因为这些函数操作的只是
+     字符串。
+     解析文件路径依赖若干个定义在 *os* 的变量：
+     + os.seq - 路径不同部分的分隔符 (即 "/" 或者 "\")
+     + os.extsep = 文件名和扩展名之间的分隔符 (即 ".")
+     + os.pardir - 这个路径的模块表示当前目录的父目录 (即 "..")
+     + os.curdir - 这个路径的模块表示当前的目录 (即 ".")
+***** split()
+      ~split()~ 函数将文件路径分割成两个部分，并以元组的形式返回结果。元组的第二
+      个元素是路径的最后部分，第一个元素是前面的所有组成部分
+***** basename()
+      ~basename()~ 函数返回结果等同于 ~split()~ 函数的返回值的第二部分。
+***** dirname()
+      ~dirname()~ 函数返回结果等同于 ~split()~ 函数返回值的第一部分。结合
+      ~basename()~ 和 ~dirname()~ 函数的返回值就可以得到最初的路径
+***** splitext()
+      ~splitext()~ 函数类似 ~split()~ 函数，只是 ~splitext()~ 函数把文件路径按扩
+      展文件名分隔符来分隔，而不是按文件路径的分隔符进行分隔。
+***** commonprefix()
+      ~commonprefix()~ 函数把一个列表的文件路径当作参数，然后返回所有输入路径的
+      通用前缀。返回的值可能只是字符串而不是真实存在的路径，文件路径分隔符也不在
+      考虑范围，所以最后返回的前缀可以不是以文件描述符结束。
+***** commonpath()
+      ~commonpath()~ 函数需要考虑文件描述符，所以返回结果是通用的路径前缀，而不
+      是只是字符串。
+**** Building Paths
+     除了分割现有的路径，通常也需要从字符串构造文件路径。
+***** join()
+      如果想把若干个组件结合成一个文件路径，可以使用 ~join()~ 函数
+***** expanduser()
+      有时候可以自动对文件路径中的变量进行扩展，例如 ~expanduser()~ 函数可以把
+      "~" 解析成用户的 home 目录。如果对应用户的 home 目录不存在，那么 "~" 不发
+      生改变
+***** expandvar()
+      ~expandvar()~ 函数就更加通用了，可以扩展所有 shell 的环境变量
+**** Normalizing Paths
+***** normpath()
+      使用 ~join()~ 函数组合的文件路径，或者是存在以文件分隔符结束的文件路径，或
+      者是其他的相对路径。可以使用 ~normpath()~ 函数把这些不规则的路径恢复成标准
+      的路径。
+***** abspath()
+      如果想把相对路径转换成绝对路径，可以使用 ~abspath()~ 函数
+**** File Times
+     除了操作文件路径之外， *os.path* 模块也有函数可以获取文件属性，类似
+     *os.stat()* 的返回值
+**** Testing Files
+     当一个程序 "遇上" 一个文件路径的时候，它需要知道这个路径是否指向一个文件，
+     目录，或者是符号链接，甚至是该路径是否存在。 *os.path* 有测试这些条件的函数。
+*** pathlib -- Filesystem Paths as Objects
+    目的：对文件名和路径使用面向对象的 API 而不是底层的字符串操作进行解析，构造，
+    测试以及其他工作
+**** Path Representations
+     *pathlib* 包含了可以用来处理 POSIX 标准或者是 微软语法的文件系统路径的类。
+     *pathlib* 包含的这些类被称为 "pure (纯？)" 类，而这些类只是在字符串或者是
+     *具体的类上操作，而不会直接与文件系统进行交互。而那些具体的类扩展了包含直
+     *接修改或者反馈给文件系统的 API
+     
+     ~PurePosixPath~ 和 ~PureWindowsPath~ 这两个 *pure* 类都可以被实例化并且在
+     任何的系统上使用，但是它们只是会在对应的平台正常工作。如果想要为真实的操作
+     系统实例化一个可用的类，可以使用 ~Path~ 类来获取 ~PurePosixPath~ 或者是
+     ~WindowsPath~, 具体就取决于实际的操作系统了。
+**** Building Paths
+     如果想要实例化一个新的路径，需要传递一个字符串作为第一个参数。字符串就代表
+     着该路径的值。如果想要创建一个新的路径并关联到已存在的文件路径，可以使用
+     "/" 操作符扩展文件路径。传递给该操作符的即可以是一个字符串，也可以是另外的
+     路径对象。
+***** resolve()
+      具体的路径类包含有 ~resolve()~ 方法来通过查找文件系统的文件夹，符号链接来
+      标准化一个路径，并且输出对应的绝对路径
+***** joinpath()
+      如果想要构造实现不知道相应组件的路径，可以使用 /joinpath()~ 函数，并把每一
+      个路径组件当作参数传递。
+***** with_name()
+      使用 ~with_name()~ 函数可以通过用不同的文件名替换同一个目录下的文件以产生
+      一个新的路径。
+***** with_suffix()
+      使用 ~with_suffie()~ 函数可以用不同的扩展名替换同一个目录下的文件以产生一
+      个新的路径
+**** Parsing Paths
+     Path 对象有相应的函数和属性来获取文件路径的部分值。例如
+***** parts
+      使用 *parts* 属性可以输出一系列基于文件分隔符进行解析的路径组件;
+***** parent
+      使用 *parent* 属性可以输出指定目录的父目录；
+***** parents
+      使用 *parents* 属性可以以列表的形式输出所有的父目录。
+***** name
+      使用 *name* 属性可以获取文件路径的最后部分(与 ~os.path.basename()~ 函数返
+      回值一样)
+***** suffix
+      使用 *suffix* 属性返回文件路径的后缀
+***** stem
+      使用 *stem* 属性返回文件路径去掉后缀的最后部分。
+**** Create Concrete Paths
+     *Path* 类的实例可以通过关联到文件名，目录，或者是文件系统中的符号的字符串来
+     进行实例化。该类也提供了若干便利的方法以使用常用的文件路径来构造实例，例如
+     当前工作目录或者是用户的 home 目录
+**** Directory Contents
+     有三个函数可以列出目录中文件的名字或者是相应子目录
+***** iterdir()
+      ~iterdir()~ 返回一个生成器，可以把对应目录的所有子项 (文件和子目录)都
+      yield 出来
+***** glob()
+      使用 ~glob()~ 函数寻找符合一定模式的文件
+***** rglob()
+      使用 ~rglob()~ 函数递归寻找符合一定模式的文件
+**** Reading and Writing Files
+     每一个 ~Path~ 实例都包含方法来操作它指向的文件内容。如果想读取文件内容，可
+     以使用 ~read_bytes()~ 或者是 ~read_text()~ 方法。如果想写入文件，可以使用
+     ~write_bytes()~ 或者是 ~write_text()~ 方法。使用 ~Path~ 的 ~open()~ 函数而
+     不是内置的 ~open()~ 方法来获取文件句柄。
+**** Manipulating Directories and Symbolic Links
+***** mkdir()
+      如果 Path 表示的目录或者符号链接关联的文件不存在的话，可以使用 ~mkdir()~
+      函数创建。
+***** symlink_to()
+      使用 ~symlink_to()~ 函数来创建符号链接。该符号链接的名字是由 Path 的值所确
+      定的，而该符号链接的目标文件名会被当作参数传递给 ~symlink_to()~
+**** File Types
+     Path 实例包含若干函数来测试文件路径所表示的文件：
+     + is_file()
+     + is_dir()
+     + is_symlink()
+     + is_fifo()
+     + is_block_device()
+     + is_char_device()
+       
+       而上面的函数都是不用传递参数的
+**** File Properties
+***** stat()/lstat()
+      一个文件的详细的信息可以通过 ~stat()~ 或者是 ~lstat()~ 函数获取，
+      (~lstat()~ 函数是用于获取符号链接信息的). 而这两个函数的返回结果与
+      ~os.stat()~ 和 ~os.lstat()~ 一样。
+***** owner()
+      获取文件所有者的信息
+***** group()
+      或者文件所属组的信息
+***** touch()
+      Path 的 ~tocuh()~ 函数与 Unix 平台的 touch 命令一样，都可以用来创建一个新
+      文件，或者是更改已有文件的修改时间和权限
+**** Permissions
+     在 Unix-like 的系统上，文件的权限可以通过把模式当作 integer 传递给
+     ~chmod()~ 函数进行修改。 模式 (Mode) 可以使用 *stat* 模块定义的常量进行构造
+**** Deleing
+     有两个函数可以用于在文件系统删除不同的东西。
+***** rmdir()
+      如果想要删除空的文件目录，可以使用 ~rmdir()~ 函数。如果目录不存在，将抛出
+      一个 ~FileNotFoundError~ 异常；如果目录不为空，也会抛出异常。
+***** unlink()
+      对于文件，符号链接，或者其他类型的路径，都可以使用 ~unlink()~ 进行删除, 但
+      是需要注意的是，你必须有对该文件进行删除的权限
+*** glob -- Filename Pattern Matching
+    目的：使用 Unix shell 的规则来寻找文件名匹配一定模式的文件
+    
+    虽然 *glob* 模块的 API 很少，但是 *glob* 模块还是相当强大的。在任何需要寻找
+    一系列符合特定模式的文件的情况下， *glob* 都非常有用。如果想要创建有特定扩展
+    名，前缀，或者任何文件名中包含通用字符串的文件，都可以使用 *glob* 模块，而不
+    是自己编写代码来扫描文件夹。
+    
+    *glob* 模块使用的匹配规则与 *re* 模块的正则表达式并不相同； *glob* 使用的是
+    标准 Unix 路径的扩展规则。这些规则只包含了很少的字符就可以实现两种不同的通
+    配符和其他的字符范围 (character ranges)。这些匹配模式应用文件名的不同分段 (以路径分隔符 "/" 分
+    隔). 模式中的路径可以是绝对路径或者是相对路径。Shell 的变量名和波浪号 *~*
+    不会被展开。
+**** Wildcards
+     星号 /*/ 可以匹配一个或者多个文件名中的分段，例如 , "dir/*". *glob.glob()*
+     函数默认是不会递归搜索子目录的，函数返回结果也是未排序的，如果想要搜索子目
+     录，需要明确指出。
+**** Single Character Wildcard 
+     问号 "?" 是另外一个通配符，它可以匹配路径中所有的单字符。
+**** Character Ranges
+     使用指定范围的字符而不是问号来匹配若干个字符。例如 [a-z]
+**** Escaping Meta-characters
+     有时候需要搜索包含 *glob* 用来匹配的特殊字符的文件。 ~escape()~ 函数构造了
+     一个可以转义特殊字符的模式，这样 *glob* 就不会展开或者是解析这些转义的特殊
+     字符了。
+*** fnmatch -- Unix-style Glob Pattern Matching
+    目的：处理 Unix 风格的文件名之间的对比
+    *fnmatch* 模块是用来比较在 Unix shell 中使用的 glob-style 风格的文件名的。
+**** Simple Matching
+***** fnmatch()
+      ~fnmatch()~ 函数使用一个简单的模式来比较文件名并且返回一个布尔值，以显示文
+      件名是否匹配模式。当文件系统是区分大小写的时候，文件名的比较也是区别大小写的。
+***** fnmatchcase()
+      如果想忽略文件系统和操作系统的设置强制在比较的时候区别大小写的话，可以使用
+      ~fnmatchcase()~ 函数。需要注意的是 OS X 系统是默认区分大小写的。
+**** Filtering()
+     如果想要测试一系列的文件名，可以使用 ~filter()~ 函数。该函数返回包含匹配模
+     式的文件名的列表
+**** Translating Patterns
+     其实 ~fnmatch()~ 函数的内部就是将 glob 模式转换成正则表达式，然后调用 *re*
+     模块来比较名字和模式。而 ~translate()~ 就是暴露出来的 API, 可以显示地将
+     glob 模式转换成正则表达式
+*** linecache == Read Text Files Efficiently
+    目的： 从文件或者导入的模块中获取多行文本，然后缓存读取结果，这样多次从同一
+    个文件读取数据就会变得非常高效。
+    
+    *linecache* 模块被其他的 Python 标准库用来处理 python 源文件。缓存会保存文件
+    的内容，然后在内存中把数据解析成单独的行。API 会返回保存对应数据行的索引的
+    列表，节省了重复读取数据并且解析所需结果的时间。对于在同一个文件中寻找多行
+    数据的情形， *linecache* 非常有用，例如为错误报告生成 traceback.
+**** Reading Specific Lines
+     *linecache* 读取的文件的行号是从 1 开始的，而不是像常见的列表那样从 0 开始
+**** Handling Blank Lines
+     linecache.getline() 的返回结果总是包含着换行符的，如果返回结果只有换行符，
+     就说明这是空行。
+**** Error Handling 
+     如果请求的行号超出范围的话， ~getline()~ 函数会返回一个空字符串，如果读取的
+     文件不存在，返回结果也是一个空字符串。
+**** Reading Python Source Files
+     因为 *linecache* 被广泛用来生成回溯信息 (traceback), 所有它的一个关键特性就
+     是可以在导入的路径通过指定导入类库的名字来定位类库的源文件
+     
+*** tempfile -- Temporary File System Objects
+    目的：创建临时的文件系统对象
+    
+    安全地创建拥有唯一名字的文件，这样这些文件名字就不会被那些想要窃取数据或者是
+    攻击你的程序的人猜到。 *tempfile* 模块提供了若干个函数来安全地创建临时文件资
+    源。 ~TemporaryFile()~ 打开并且返回一个未命名的文件； ~NamedTemporaryFile()~
+    打开并且返回一个已命名的文件； ~SpooledtemporaryFile()~ 在把内容保存到磁盘之
+    前会把相关内容保存到内存中； ~TemporaryDirectory()~ 是一个上下文管理器，可以
+    在上下文关闭的时候删除目录
+**** Temporary Files
+     如果程序需要临时文件来保存数据，但是需要和其他程序共享该文件，那么就应该使
+     用 ~TemporaryFile()~ 来创建文件。这个函数在你的平台上创建一个文件，然后马上
+     删除。这样其他的程序就没有可能找到或者打开这个文件了，因为在文件系统表中是
+     没有关于它的索引。 ~TemporaryFile()~ 创建的文件会在它关闭的时候自动删除，无
+     论是通过 ~close()~ 或者是使用上下文管理器和使用 ~with~ 语句来关闭文件。
+**** Named Files
+     某些情况下拥有命名的文件是非常重要的。对于那些多进程，甚至是多个主机的程序，
+     命名文件是最简单交换信息的途径。 ~NamedTemporaryFile()~ 创建一个文件并且没
+     有删除它，这样它就可以拥有它的文件名了(通过文件名属性来获取)
+**** Spooled Files
+     对于包含着相对较小数量数据的临时文件而言，使用 ~SpooledTemporaryFile~ 可能
+     是更高效的方法，因为它使用 ~io.BytesIO~ 或者是 ~io.StringIO~ 缓冲区在内存保
+     存文件，直到超过阀值。 当数据的大小超过阀值的时候，它就会重头来过，并且把原
+     先的内容保存到文件，然后缓冲区酒会被 ~TemporaryFile()~ 所取代
+**** Temporary Directories
+     当需要若干个临时文件的时候，可能使用 ~TemporaryDirectory~ 创建一个单独的临
+     时目录，并且在该目录下打开所有的文件会更加方便
+**** Predicting Names
+     当需要的匿名文件的安全性较低的时候，可以使用预先设定的固定模式的文件名以更
+     便利地找到文件并调试。在某种程度上，现在讨论的文件都是使用三个参数来控制生
+     成的文件名。文件格式如下：
+     #+BEGIN_CENTER
+     dir+prefix+random+suffix
+     #+END_CENTER
+     除了 /random/ 部分以外，其他的部分都是可以以常数的形式传递给函数以用来创建
+     临时文件的
+**** Temporary File Location
+     如果没有显式指定 ~dir~ 参数，函数使用临时路径就取决于程序运行的平台和设置。
+     在 *tempfile* 模块，可以使用 ~gettempdir()~ 和 ~gettempprefix()~ 函数查询和获取相关的设置
+** Data Persistence and Exchange
+*** pickle -- Object Serialization
+    对象序列化
+    
+    *pickle* 模块实现了将 Python 对象转换成一系列的字节码。这个过程被称为对象的
+    序列化。把对象序列化成字节流可以被用作传输或者是直接保存，然后也可以根据该
+    字节流构造出一个新的对象 (但是此过程可能会存在安全隐患，所以不要直接构造未
+    经校验的不被信任的数据)
+**** Encoding and Decoding Data in Strings
+     使用 *dumps()* 函数把数据结构编码成一个字符串，然后可以打印在终端。可被序列
+     化成对象的包括内置的数据结构，或者可以被序列化对象的实例。然后使用
+     *loads()* 函数把字符串反序列化成一个具有相同值的新对象
+**** Working with Streams
+     除了 *dumps()* 和 *loads()* 函数之外， *pickle* 还提供了其他很便利的函数操
+     作文件流。你可以把多个对象写入到一个流，然后在流里读取它们，并且无需提前知
+     道有多少的对象，或者是对象有多大。 *pickle* 还可以用作进程间通信
+**** Problems Reconstructing Objects
+     当操作一个自定义类的时候，被序列化的对象必须出现在读取这个序列化对象的进程
+     的命名空间中。需要注意的是，只是实例的数据会被序列化，该实例的类定义是不会
+     被序列化的。而该类的名字在反序列化创建对象的时候用于确定类的构造器
+**** Unpicklable Objects
+     并非所有的对象都可以被序列化的。Sockets, 文件句柄， 数据库连接，或者在运行
+     时状态会随着操作系统或者进程改变的对象都不适合进行序列化，意义不大。当对象
+     有那些不可被序列化的属性时，可以通过使用 *__getstate__()* 和
+     *__setstate__()* 函数返回这些属性的子集以进行序列化
+**** Circular Reference
+     序列化的算法会自动处理对象之间的相互引用关系，所以那些复杂的数据结构也不需
+     要特殊的处理。如下图的结构可以正确被序列化：
+     #+DOWNLOADED: https://pymotw.com/3/_images/graphviz-248a78228039fcd0c46f1c3550551b2e9e9772f6.png @ 2017-04-13 09:52:05
+     [[file:../images/Python 3 Module of the week/graphviz-248a78228039fcd0c46f1c3550551b2e9e9772f6_2017-04-13_09-52-04.png]]
+** Concurrency with Processes, Threads, and Coroutines
+*** asyncio -- Asynchronous System Event
+**** Asynchronous Concurrency Concepts
+     大部份使用其他并发模块的程序都是被写成串行执行，并依赖底层的线程或者是语言
+     运行时的进程管理亦或是操作系统来切换上下文。而基于 *asyncio* 的程序需要程序
+     代码来控制上下文的切换，而正确使用 Python 的异步框架又需要理解若干有关联的
+     概念
+     
+     *asyncio* 提供的框架是以 event loop 为中心的，而 event loop 是负责有效处理
+     IO 事件，系统事件，以及程序上下文切换的一级对象。Python 提供了若干个事件循
+     环的实现，以充分利用操作系统的性能。一般而言，会自动选择默认的那个实现，当
+     然，也可以选择某个特定的实现。在 Windows 下这个会很有用，在某种程度下，对
+     外部的进程添加循环支持可以更高效地进行网络 IO
+     
+     跟 event loop 进行交互的程序要注册需要运行的函数，这样 event loop 就可以在
+     资源就绪的时候调用注册的函数。例如，一个服务器打开 sockets, 然后注册对应的
+     函数，告诉 event loop 在有输入 event 出现的时候把控制权交给 服务器。event
+     loop 会提醒服务器这里有新的连接，或者有 socket 有数据需要读取。而程序代码
+     希望可以在当前上下文已经没有任务需要执行的这段时间交出控制权。例如，当一个
+     socket 已经没有数据可读的时候，服务器应该拜控制权交给 event loop
+     
+     把控制权交还给 event loop 的机制依赖于 Python 的协程 (coroutines). 协程是
+     Python 中特殊的函数，可以在保存当前状态的情况下交出控制权。 线程跟生成器很
+     像，而事实上，在没有协程的 3.5 之前的版本，也正是使用生成器来实现协程的。
+     *asyncio* 也提供了基于类的抽象层来编写不是直接使用协程的回调代码。无论是基
+     于类的抽象还是协程的模型，都可以通过重新进入 event loop 来改变显式改变上下
+     文，而不是像线程那样隐式切换。
+     
+     ~future~ 是一个表示工作还没有完成的数据结构。event loop 可以通过留意
+     ~Future~ 对象是否完成以允许程序的一部分等待另一部分的工作。除了 ~future~
+     之外，event loop 也拥有其他的并发原语，例如：锁和信号量
+     
+     ~Task~ 是一个知道如何包裹和管理协程运行的 ~Future~ 的子类。Tasks 也可以在
+     资源就绪的时候由 event loop 调度，以产生可被其他协程调用的结果
+**** Cooperative Multitasking with Coroutines
+     协程是被设计用于并发操作的。一个协程函数在被调用的时候创建一个协程对象，而
+     调用者可以通过协程的 *send()* 函数来运行相应的协程函数。一个协程可以使用
+     *await* 关键字停止执行。当协程停止运行的时候，它的状态会被保存下来，这样它
+     就可以在下次被唤醒的时候在上次停止的地方重新运行
+***** Starting a Coroutine
+      有很多方法可以让 *asyncio* event loop 运行一个协程，最简单的就是使用
+      *run_until_complete()* 函数，并且把一个协程直接传递给该函数
+***** Returning Values fro Coroutines
+      一个协程的返回值会被传递到开始和等待该协程的代码
+***** Chaining Coroutines
+      一个协程可以运行另外一个协程，并等待它。这个就是把一个任务解耦成可重用的代
+      码变得更容易了。
+***** Generator Instead of Coroutines
+      协程函数是 *asyncio* 的核心设计。它们提供了可以停止程序运行，保存状态调用，
+      下次重新进入保存状态的语言构造，而对于并发框架，这些都是非常重要的特性。而
+      在没有正式的 *async def* 语法之前，是通过 *asyncio.coroutine()* 和 *yield
+      from* 实现类似功能的
+**** Scheduling Calls to Regular Functions
+     除了管理协程和 IO 回调， *asyncio* event loop 也可以通过保留在 loop 中的计
+     时器来对普通函数进行调度。
+***** Scheduling a Callback "Soon"
+      如果回调的时间无关紧要的话，可以使用 *call_soon()* 函数调度到 loop 的下一
+      次迭代。任何额外的位置参数都可以被在调用的时候都会传递给该回调函数。如果想
+      给回调函数传递关键字参数，可以使用 *functools* 模块的 *partial()* 函数
+***** Scheduling a Callback with a Delay
+      如果在等待一段时间后才回调，可以使用 *call_later()* 函数。第一个参数是需要
+      等待的时间，第二个参数是需要回调的函数
+***** Scheduling a Callback for a Specific Time
+      也可以调度函数在一个特定的时间被执行。loop 使用 monotonic clock 而不是
+      wall-clock, 保证了时间不会倒转。如果想调度回调函数，需要从 loop 的
+      *time()* 函数构造的时钟开始设置。
+**** Producting Results Asynchronously
+     ~future~ 是一个表示工作还没有完成的数据结构。event loop 可以通过留意
+     ~Future~ 对象是否完成以允许程序的一部分等待另一部分的工作。
+***** Waiting for a Future
+      Future 可以像协程那样工作，可以用于等待协程的任何技术也可以用于等待
+      ~future~ 完成。当 *set_result()* 函数被调用，Future 的状态就会被标记成完成。
+      此外 Future 实例会保留返回待会恢复的函数的结果。Future 也可以使用 await
+***** Future Callbacks
+      除了可以像协程那样工作，Future 也可以在完成的时候调用回调函数。回调函数按
+      照它们注册时的顺序进行调用
+**** Executing Tasks Concurrently
+     Tasks 是与 event loop 交互的主要方式之一。Tasks 包裹着协程并追踪协程是否完
+     成，Tasks 是 Future 的子类，所以其他的协程可以等待它们，此外在 task 完成之
+     后，每一个 task 都有一个可被检索的返回结果
+***** Starting a Task
+      如果像运行一个 task, 可以通过使用 *create_task()* 函数创建一个 Task 实例。
+      而只要协程未返回结果，task 就会被当作 event loop 管理着的并发操作的一部分
+      一直运行下去
+***** Canceling a Task
+      通过保留 *create_task()* 函数返回的 Task 对象， 是可以在 task 完全之前取消
+      它的操作的。在开始运行 event loop 之前取消一个 task,
+      *run_until_complete()* 就会抛出一个 *CancellerError* 异常。而如果一个 task
+      在等待其他的并发操作的时候被取消，在 task 开始等待的地方就会抛出一个
+      CancellerError 异常以通知 task 出现了取消操作
+***** Creating Tasks from Coroutines
+      *ensure_future()* 函数返回一个绑定到一个协程执行的 Task. 而这个 Task 实例
+      可以传递给其它的代码，这些代码无需知道这个 coroutine 构造细节的情况下等待
+      这个 Task
+**** Composing Coroutines with Control Structures
+     利用内置的 await 关键字是很容易管理一系列串行的协程的。如果希望一个协程等待
+     若干个并行的协程的话，需要使用更复杂的结构，例如 *asyncio* 的工具
+***** Waiting for Multiple Coroutines
+      把一个操作分成几个部分，然后让它们单独运行是很有用的; 例如，查询远程的 API
+      或者下载远程的资源。对于那些不关注运行顺序或者有任意数量的操作，可以使用
+      *wait()* 函数停止一个协程直到其他的后台操作完成。 *wait()* 使用一个 set 集
+      合来保存它创建的 Task 实例。而 set 里面协程的运行，或者结束的顺序都是不可
+      预测的。 *wait()* 函数返回结果是一个包含着两个 set 的元组，分别对应着已经
+      完成和等待的 task
+***** Gathering Results from Coroutines
+      如果后台的操作已经被定义好，你在意的只是结果的话。 *gather()* 函数用来等待
+      多个操作可能更加有用
+***** Handing Background Operations as They Finish
+      *as_complted()* 是一个管理传递给它的协程并且在协程完成任务时返回结果的生成
+      器。 像 *wait()* 函数那样， *as_completed()* 是无法确保运行顺序的，它也无
+      需等待所有后台操作完成才开始其他操作。
+**** Synchronization Primitives
+     虽然基于 *asyncio* 的应用通常是基于单线程的，但是 *asyncio* 还是被设计用作
+     并发程序的。每个协程或者 task 都以不可预测的顺序运行，具体取决与延迟和 IO
+     中断以及其他外部时间。为了支持更安全的并发， *asyncio* 包含了一些可以在
+     *threading* 和 *multiprocessing* 找到的底层的原语实现。
+***** Locks
+      锁可以用来获取共享资源；只有锁的持有者才能使用资源。多次的锁获取尝试会被阻
+      塞，保证了每次只有一个锁持有者。
+***** Events
+      *asyncio.Event* 是基于 *threading.Event* 的，允许多个消费者在无需关注跟通
+      知有关的特殊值的情况下等待其他事件的发生
+***** Conditions
+      *Conditions* 和 *Event* 做的事很像，除了 *Event* 是自动唤醒所有的协程，
+      *Conditions* 是通过 *notify()* 函数唤醒需要唤醒的函数
+***** Queues
+      *asyncio.Queue* 为协程提供了类似 *queue.Queue* 对于线程，
+      *multiprocessing.Queue* 对于进程那样一个先进先出的数据结构
+**** Using SSL
+     *asyncio* 内置了对 socket 进行使用 SSL 端对端加密的支持。将一个 SSLContext*
+     *实例传递给一个要创建服务器或者客户端的协程以获取和启用 SSL 协议的支持；而
+     *这些工作都会在 socket 就绪前完成
+**** Interacting with Domain Name Services
+     应用通过网络使用域名服务 (DNS) 进行域名和 IP 地址的转换。而 *asyncio* 可以
+     使用 event loop 很方便地在后台进行操作，避免查询时的阻塞
+**** Working with Subprocess
+     有时候是非常有必要跟其他的程序和进程进行交互的，为了在不重写代码的基础上充
+     分利用现有的代码，或者是与其它 Python 之外的程序交互 (例如 Shell 命令). 就
+     像网络的 IO, *asyncio* 提供了两个抽象类来启动其它程序并且进行交互
+**** Receiving Unix Signals
+     Unix 系统的事件通知通常会中断程序，触发一个处理器。当使用 *asyncio* 的时候，
+     信号处理器的回调是会与其它协程交错的，而且回调是由 event loop 来统一管理的。
+     这样会导致更少的中断操作，并且需要考虑更安全地清理那些未完成的操作
+**** Combining Coroutines with Threads and Proces
+     大量已有的类库尚未支持 *asyncio*, 它们可能不解受或者依赖于 *asyncio* 模块还
+     不支持的并发特性。但是还是有可能基于 *asyncio* 来使用这些类库的，可以通过使
+     用 *concurrent.futures* 里面的执行器 (executor)在单个独立的线程或者进程上运
+     行代码。
+***** Threads
+      event loop 里面的 *run_in_executor()* 方法接受一个执行器实例(通用的回调对
+      象)以调用传递给该回调对象的所有参数. 它返回一个可以利用等待其他函数执行完
+      毕并且返回结果的 Future. 如果没有执行器传递给 *run_in_executor* 函数，一个
+      *ThreadPoolExcutor* 就会被创建。 *ThreadPoolExcutor* 对象启动它的工作线程，
+      并且在每个线程调用一次传递进来的函数。
+***** Processes
+      *ProessPoolExecutor* 以非常类似的方式进行工作，创建一系列的进程而不是线程。
+      使用单独的进程需要更多的系统资源，但是对于计算密集型的操作，可以在每一个
+      CPU 核心上运行一个单独的任务。
+**** Debuggin with asyncio
+     *asyncio* 内置了很多有用的调试特性。
+     
+     首先， event loop 使用 *logging* 来记录它的状态信息。如果 *logging* 在应用
+     中启动了，那么 logging 的一部分特性就可以被 event loop 使用。其他的特性可以
+     通过告诉 event loop 记录更多的信息来启用。通过给 *set_debug()* 设置布尔值来
+     判断是否启用调试功能。
+     
+     因为基于 *asyncio* 的应用都对贪婪的协程高度敏感，而 yield 就刚好相反，所以
+     event loop 内置了监测慢回调的支持功能。通过启用调试来开启这项功能，并通过设
+     置 *slow_callback_duration* 函数来定义什么是 "慢"--在多少秒过后，警告的信息
+     应该发出。
+     
+     最后，如果一个使用 *asyncio* 的应用在退出的时候没有清理协程或者其他资源，就
+     意味着会出现逻辑错误，阻止程序里面的部分代码继续执行。通过启用
+     *ResourseWarning* 警告，程序退出的时候，就会报告相应的情况。
+** The Internet
+*** urllib.parse --Split URLs into Components
+    *urllib.parse* 模块提供了操作 URL 以及它们部件的的函数，切分 url 或者是把不
+    同的部分组合起来。
+**** urlparse()
+     *urlparse()* 函数返回结果是一个 *ParseResult* 对象，该对象类似包含这 6 个元
+     素的元组。一个 URL 可以被解析成 协议 (scheme),网络位置 (network location),
+     路径 (path), 路径分段参数(在路径里面以逗号分隔), 查询语句 (query)，以及分段
+     (fragment). 虽然 *urlparse* 的返回值像是一个元组，但是实际上它是一个命名元
+     组 (namedtuple), 支持像索引那样使用命名属性来访问 URL 中其他结构。
+**** urlsplit()
+     *urlsplit()* 可以当作 *urlparse()* 另外的选择。但是它们有一点不同，因为它们
+     不是从 URL 上切分参数的。对于遵守 RFC2396 协议的 URL 而言，每个路径分段都
+     可以拥有查询参数
+**** urldelfrag()
+     *urldefrag()* 可以提取分段标志符
+**** geturl()
+     有若干种方法可以把分隔了的 URL 组件组合成单个字符串。使用 *geturl* 方法就可
+     以实现该功能。但是 *geturl()* 只能作用与 *urlparse()* 或者是 *urlsplit* 的
+     返回结果
+**** urlunparse()
+     存储着字符串的元组可以使用 *urlunparse()* 组合成一个 URL. 如果 URL 中包含着
+     多余的字符，你可以使用 *urlparse* 解析，然后再使用 *urlparse* 重新构造 URL,
+     这样就去掉了多余的字符。
+**** urljoin()
+     除了解析 URL 之外， *urlparse* 还提供了 *urljoin* 函数从相对路径构造绝对路
+     径的 URL.
+**** Encoding Query Argument
+***** urlencode
+      在参数添加到 URL 之前，需要先被编码，可以使用 *urlencode()* 进行编码。编码
+      可以替换掉那些像空格之类的特殊字符以保证它们以标准格式把参数传输到服务器。
+      如果想在查询语句中传递一系列在变量中单独出现的值，可以在调用 *urlencode()*
+      时把 *doseq* 变量设置为 True
+***** parse_qs()/parse_sql()
+      如果想对查询字符串解码的话，可以使用 *parse_qs()* 或者时 *parse_sql()* 函
+      数。 *parse_qs()* 函数的返回值是一个隐射查询产生名和参数值的字典，而
+      *parse_qsl()* 则是返回一个包含着名字和值的元组的列表
+***** quote()/quote_plus()
+      对于那些包含着特殊的可能引起服务器解析错误的参数，都应该在传递给
+      *urlencode()* 的时候 "包裹" 起来。可以使用 *quote()* 或者是 *quote_plus()*
+      函数在本地把参数先转义。而 *quote_plus()* 对比 *quote* 是把参数转义得更彻底
+***** unquote()/unquote_plus()
+      使用 *unquote()* 可以恢复使用 *quote()* 转义的参数，而使用
+      *unquote_plus()* 恢复 *quote_plus()* 转义的参数。
+*** urllib.request -- Network Resource Access
+    *urllib.request* 提供了可以调用定义在 URLs 里面的资源的 API. 该模块是被设计
+    成用来扩展支持新协议或者添加已有协议的应用。
+**** HTTP GET
+     使用 *urllib.request* 模块最简单的操作就是 http get. 把 URL 传递给
+     ~urlopen()~ 函数，并得到一个类文件的对象来操作返回数据。对于返回结果，使用
+     ~info()~ 函数可以获取 headers 信息。然后可以通过 ~read()~ 或者
+     ~readlines()~ 函数读取数据 hanshu 读取数据。而 ~urlopen()~ 函数的返回结果也
+     是可迭代的。
+**** Encoding Arguments
+     对于那些要传递到服务器的数据，可以使用 ~urllib.parse.urlencode()~ 函数进行
+     编码，然后添加到 URL.
+**** HTTP POST
+     如果想把编码后的参数使用 POST 而不是 GET 方法提交到服务器，只需要把编码后的
+     参数当作数据传递给 ~urlopen()~ 函数。
+**** Adding OutGoing Headers
+     ~urlopen()~ 是一个很方便的函数，因为它隐藏构造和处理 request 的细节。如果想
+     要更精确地控制 request, 可以一个直接使用 Request 实例。例如，可以添加自定义
+     的 headers 到 request 以控制返回结果的格式，指定本地缓存文档的版本，以及告
+     知服务器，当前客户端的信息。
+**** Posting Form Data from a Request
+     传递给服务器的数据可以在构建 Request 的时候当作参数传递进去。
+**** Uploading Files
+     与上传简单的表单相比，上传经过编码的文件需要额外的工作。需要在 request body
+     中构造完整的 MIME 信息，这样服务器就可以从上传文件辨识出表单项。
+**** Creating Custom Protocol Handlers
+     *urllib.request* 内置对 HTTP(S), FTP, 以及获取本地文件的支持。如果想支持其
+     他的 URL 类型，只需注册另外的协议 handler. 例如，支持 URLs 指向远程 NFS 服
+     务器上任意的文件且无需在获取文件前挂载对应的路径的功能，可以通过创建一个继
+     承 BaseHandler 并且有 ~nfs_open()~ 函数的类来实现。
+*** xmlrpc.client -- Client Library for XML-RPC
+    XML-RPC 的客户端
+    
+    XML-RPC 基于 http 和 xml 的轻量级远程调用协议(RPC). *xmprpclib* 模块可以让
+    Python 程序跟用任何语言实现的 *XML-RPC* 服务器通信
+**** Connecting to a Server
+     客户端连接服务器最简单的方法就是通过给定服务器地址来实例化一个
+     *ServerProxy()* 对象。你也可以添加其他的选项，例如开箱即用的 http 和 https 协
+     议支持，或者是在 *SMTP* 上实现 XML-RPC
+***** versbose
+      ServerProxy(verbose=Ture),显示详细信息
+***** encoding
+      ServerProxy(encoding='ISO-8859-1'),修改默认的 UTF-8 编码
+***** allow_none
+      ServerProxy(allow_none=True),自动将 Python 的 *None* 转化成 nil,否则将抛出
+      异常
+***** use_datetime
+      ServerProxy(use_datetime=True) 把 date 当作原生的数据类型
+**** Data Types
+     XML-RPC 协议支持有限的通用数据类型。这些数据类型可以被当作参数或者返回值传递，
+     或者是结合使用，产生更复杂的数据类型
+**** Passing Objects
+     Python 类的实例化对象会以字典的形式传递，并且当成结构体处理，字典的值就是对
+     象的属性值。而服务器也会以字典的形式给客户端返回结果，因为没有其他信息告诉服
+     务器或者客户端，返回结果应该被实例化
+**** Binary Data
+     所有发送给服务器端的数据都会被自动编码和转义；但是有时候，可能某些数据类型不
+     能被解析成有效的 xml 结构，例如，二进制类型的图片。如果想传递二进制数据，最好
+     是使用 *Binary* 类对二进制数据进行编码
+***** Binary objects +pickle
+      如果想要传输二进制的对象，最好是使用 *pickle* 模块.
+**** Exception Handling
+     因为 XML-RPC 的服务器端可以使用任何语言写的，所以异常类就无法直接返回给客户
+     端；为了解决这个问题，服务器端会先把异常转换成 *Fault* 对象然后再在客户端抛
+     出异常
+**** Combining Calls into One Message
+     多重调用 (Multicall) 是 XML-RPC 协议的扩展，允许一次发送多个调用请求，然后把
+     调用结果收集起来，再统一返回客户端。如果其中一个调用产生了 *Fault* 对象，那
+     么就会抛出异常，并且不再输出结果。
+*** xmlrpc.server -- An XML-RPC server
+    实现一个 XML-RPC 服务器
+    
+    *xmlrpc.server* 模块包含可以创建使用 XML-RPC 协议的跨平台，与语言无关的服务器
+    的类。除了 Python 外，很多的语言都存在 XMl-RPC 客户端的类库，这导致很容易使
+    用 XML-RPC 来构建 RPC 风格的服务
+**** Alternate API Names
+     有时，在模块或者函数内部的函数的名字并不是暴露出来的外部 API 的名字。名字可
+     能会因为与平台相关的模块实现的加载而改变；服务的 API 应该根据配置文件动态改
+     变，或者函数因为测试的缘故被替换。如果想实现额外的 api 名字，可以在
+     *register_function()* 里面把名字当作第二个参数
+**** Dotted API Names
+     注册的函数的 api 名字可以不符合 Python 的命名习惯；例如:点号 *.* 可以被当作名
+     字的一部分以在服务重分隔命名空间。例如：
+     #+BEGIN_SRC python
+       server.register_function(os.listdir, 'dir.list')
+     #+END_SRC
+**** Arbitrary API Names
+     只要你喜欢，你可以把函数注册成你喜欢的名字，即使完全不符合 Python 的命名风格，
+     例如包含空格
+     #+BEGIN_SRC python
+       server.register_function(my_function, 'multiply args')
+     #+END_SRC
+     当然，你可以这样做，并不意味着你应该这么做。因为这样很容易会造成一些奇怪的 Bug
+**** Exposing Methods of Objects
+     刚刚谈及有关函数注册的 API 名字的 bad practice,另外一个不好的做法就是使用类
+     的实例来命名，或者是暴露它们的函数。
+**** Dispatching Calls
+     默认情况下 *register_instance()* 会遍历实例所有的不以下划线 *_* 开头的可调
+     用对象，并以它们的名字来注册。如果想更细颗粒度地控制暴露的函数，你可以自定
+     义注册的逻辑
+**** Introspection API
+     对于很多的网络服务，都是可以查询 *XML-RPC*, "询问"哪些方法是可用的。
+     *SimpleXMLRPCServer* 包含很多用作查询的公共函数。默认情况下，这些函数都是不
+     启用的，但是可以通过 *register_introspection_functions()* 来启用它们。可以
+     通过在服务类中实现 *_listMethods()* 和 *_methodHelp()* 函数来添加
+     *system.listMethods()* 和 *system.methodHelp()* 方法的支持
+     
+** Application Building Blocks
+*** argparse -- Command-Line Option and Argument Parsing
+    解析命令行参数和选项
+**** Argument Actions
+***** store
+      如果没有指定，这个就是默认 action,保存参数值，并转化为相应的类型 (如果需要的话)
+***** store_const
+      Save a value defined as part of the argument specification, rather than a value
+      that comes from the arguments being parsed. This is typically used to implement
+      command-line flags that are not Booleans.
+***** store_true/store_false
+      保存合适的布尔值，一般用来开关某些选项
+***** append
+      保存参数值到一个 list,如果参数重复出现在选项后面，参数值都会被保存到 list
+***** append_cost
+      保存一个参数规范 (argument specification) 到 list
+***** version
+      输出程序的版本信息并退出
+**** Sharing Parser Rules
+     对于那些经常被使用到的选项，可以定义一个父解析器，然后继承它
+**** Conflicting Options
+     当两个选项使用相同的选项名的时候，是会产生异常的，但是可以通过在 *argparse.ArgumentParser()*
+     构造器里面指定 *conflict_handler='resolve'* 可以让相同的选项名互为别名，如果
+     指定为 *error* 而不是 resolve 就会抛出异常
+**** Argument groups
+     默认情况下，参数会被分成两组，一个是基于位置的 "positional",另外一个是跟可选性
+     相关的 *optional*
+**** Nesting Parsers
+     定义父 parser 是一种分享参数选项的方法，但是你也可以使用子 parser 定义
+     单独的命令，然后结合起来，类似 git,即 git commit ,git checkout,git push 等
+**** Variable Argument Lists
+     在一个选项后面可能接一个后者多个参数，你可以使用 *nargs* 后接你希望的参数的个数
+***** Falsg for variable argument definitions in argparse
+      | Value | Meaning                                |
+      |-------+----------------------------------------|
+      | N     | The absolute number of arguments(eg,3) |
+      | ?     | 0 or 1 arguments                       |
+      | *     | 0 or all arguments                     |
+      | +     | All,and at least one,argument          |
+**** Argument Types
+     除非你告诉*argparses*  传进来参数值的类型，否则它默认将所有的参数值当作 string;
+     你可以指定为内置的 *int* *float* 甚至 *open* 类型
+**** File Arguments
+     参数可以是文件，你可以给文件指定相应的属性，例如 *rt* *wt*
+**** Custom action
+     如果你对现有的 action 不满意，你也可以自定义 action
+*** logging -- Report Status, Error, and Informational Messages
+    报告状态，错误，和相关信息
+    
+    *logging* 模块定义了从应用或者标准库报告错误或者状态信息的标准 API.而拥有标准
+    库模块提高日志 API 最重要的好处是所有的 Python 模块都可以参与 logging,一个程序
+    的日志也可以包含来自第三方模块的信息
+**** Logging Components
+     日志系统由四个交互类型的对象组成。每一个想要使用日志功能的模块或者是应用都
+     使用一个 *Logger* 实例来添加信息到日志。调用 logger 来新建一个 *LogRecord*
+     用来保留在内存的信息直到被真正处理。一个 *Logger* 可能会有若干个的
+     *Handler* 对象用来接收和处理日志记录。而 *Handler* 使用 *Formatter* 来把日
+     志记录导向输出信息
+**** Logging in Application vs Libraries
+     应用的开发者和类库的作者都可以使用 *logging*,但是它们之间的用法有所不同，希
+     望开发者可以谨记。
+     
+     应用程序的开发者配置 *logging* 模块，把信息导向到合适的输出目标。也可以配置
+     成对不同的目标记录不同等级的日志，Handler 可以把日志信息输出到文件，HTTP
+     GET/POST 地址，通过 SMTP 输出到邮件，通用的 socket,或者与平台相关的日志机制。
+     如果这么多的日志输出目标还不能满足的话，还可以自定义输出目标
+     
+     类库的作者当然也可以使用 *logging*,并且只需更少的配置工作。简单地为每个上下
+     文创建一个 logger 实例，并使用一个合适的名字，适当的日志等级进好了。只要一
+     个类库在 logging 的 API 使用从一而终的名字和日志等级，相关的应用就可以被配置
+     成在类库中想预期那样展示或者隐藏信息
+**** Logging to a File
+     使用 *basicConfig()* 函数设置默认的 handler 把日志信息写入到一个文件
+**** Rotating Log Files
+     不断地运行程序，就会产生越来越多的日志信息或者是日志文件。为了控制日志文件
+     的数量，可以使用 *RotatingFileHandler* 自动新建新的日志文件，并且保留旧的日
+     志文件，当产生一定数量的日志文件之后，就会自动删除掉最旧的日志文件
+**** Verbosity Levels
+     *logging* api 另外一个有用的特性就是，可以根据不同的日志等级，产生不同的日
+     志等级，比如你可以不再生产环境输出 debug 日志。下面就是 logging 中的日志等
+     级 
+     | Level    | Value |
+     |----------+-------|
+     | CRITICAL |    50 |
+     | ERROR    |    40 |
+     | WARNING  |    30 |
+     | INFO     |    20 |
+     | DEBUG    |    10 |
+     | UNSET    | 0     |
+     只有大于等于设置的日志等级的日志，才会被记录。例如， 如果有一条日志信息是
+     *CRITICAL*, 而 Logger 等级被设置为 ERROR, 那么日志信息就会被记录下来，反之
+     亦然
+**** Naming Logger Instances
+     如果没有指定的，日志信息都会包含 *root*,因为默认使用了 root logger. 一个显
+     示日志信息来源的方法就是每个模块使用一个包含 logger 名字的单独的 logger 对
+     象。
+**** The Logging Tree
+     Logger 实例被配置成基于名字的树状结构。 每一个应用或者类库都定义了一个基础
+     的名字，对应的模块被设置成子节点。而 root logger 没有名字。如图：
+     [[./images/example_logger_tree.png]]
+     
+     就配置 *logging* 而言，树状结构是非常有用的，因为无需为每一个 logger 都设置
+     handler. 如果一个 logger 没有 handler 的话，它就会让父节点来处理。所以对于
+     对于大部份的应用而言，只需配置 root logger, 而所有的信息都会发送到同一个地方
+     [[./images/one_logger_handler.png
+     ]]树状结构可以对应用的不同部分使用不同的日志等级，不同的 handler, 不同的
+     formatter, 以更好地控制日志信息
+**** Times
+     用 *time* 类来表示时间。一个 *time* 实例包含着 hour, minute, second,
+     microsecond 属性以及时区信息。 *time* 实例也可以拥有与日期无关的时间，例如
+     一天的最大值，一天的最小值，以及时间精度。
+**** Dates
+     日历上的日期值使用 *date* 类来表示的。 *date* 实例有 year, month, day 属性。
+     并且很容易通过 *today()* 类方法来创建表示今天的时间。也有其他的类方法可以用
+     来创建 POSIX 时间戳，或者是用 Gregorian 日历表示的时间 (公元1 年 1 月 1日是
+     1 ,接下来的日子每过一天加 1). 而和 *time* 一样， *date* 也可以表示日期的最
+     大值和最小值，以及精度。此外，也可以使用 *replace* 方法基于现有的 date 来创
+     建一个新的 date 实例。
+**** timedeltas
+     未来或者过去的日期都可以通过两个 *datetime* 对象进行基础的数学计算，或者是
+     结合 *timedelta* 和 *datetime* 使用。
+**** Date Arithmetic
+     日期可以进行标准的加减乘除算术操作。日期的加减甚至允许出现负值。
+**** Comparing Values
+     日期和时间值都可以使用标准的比较操作来判定时间的早晚
+**** Combining Dates and Times
+     使用 *datetime* 类来存储包含日期和时间的组件。就 *date*, 有若干种类方法可以
+     从其他的常用值创建 *datetime* 实例。正如你所料， *datetime* 包含 *date* 和
+     *time* 的所有属性
+**** Formatting and Parsing
+     datetime 对象默认的表示方式是 ISO-8601 格式 (即
+     YYYY-MM-DDTHH:MM:SS.mmmmmm), 也可以使用 *strftime()* 函数生成其他的时间格式。
+     也可以使用 *datetime.strptime()* 来把已格式化的字符串转化为 datetime 实例。
+     下面额表格解释了 US/Eastern 时区的 5:00 PM January 13, 2016的格式化关键词：
+     
+     | Symbol 	 | Meaning                                                      | Example                    |
+     | %a 	     | Abbreviated weekday name                                     | 	'Wed'              |
+     | %A 	     | Full weekday name                                            | 'Wednesday'                |
+     | %w 	     | Weekday number – 0 (Sunday) through 6 (Saturday)             | 	'3'                |
+     | %d 	     | Day of the month (zero padded)                               | '13'                       |
+     | %b 	     | Abbreviated month name                                       | 	'Jan'              |
+     | %B 	     | Full month name 	                                     | 'January'                  |
+     | %m 	     | Month of the year 	                                   | '01'                       |
+     | %y 	     | Year without century 	                                | '16'                       |
+     | %Y 	     | Year with century 	                                   | '2016'                     |
+     | %H 	     | Hour from 24-hour clock                                      | '17'                       |
+     | %I 	     | Hour from 12-hour clock                                      | '05'                       |
+     | %p 	     | AM/PM 	                                               | 'PM'                       |
+     | %M 	     | Minutes 	                                             | '00'                       |
+     | %S 	     | Seconds 	                                             | '00'                       |
+     | %f 	     | Microseconds 	                                        | '000000'                   |
+     | %z 	     | UTC offset for time zone-aware objects                       | 	'-0500'            |
+     | %Z 	     | Time Zone name 	                                      | 'EST'                      |
+     | %j 	     | Day of the year 	                                     | '013'                      |
+     | %W 	     | Week of the year 	                                    | '02'                       |
+     | %c 	     | Date and time representation for the current locale 	 | 'Wed Jan 13 17:00:00 2016' |
+     | %x 	     | Date representation for the current locale 	          | '01/13/16'                 |
+     | %X 	     | Time representation for the current locale 	          | '17:00:00'                 |
+     | %% 	     | A literal % character                                        | 	'%'                |
+**** Time Zones
+     就 *datetime* 类而言， 时区是通过它的子类 *tzinfo* 来表示的。因为 tzinfo 是
+     一个抽象的积累，所以程序需要第一个子类，并且实现相应的方法才能使用它。 
+     
