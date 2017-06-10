@@ -1191,6 +1191,39 @@
      而 ~disk_usage()~ 函数以元组的形式返回磁盘总空间，当前已使用空间，以及可用
      空间。
 
+*** filecmp -- Compare Files
+    目的：比较文件系统中的文件和目录
+    
+    *filecmp* 模块包括在文件系统比较文件和目录的方法和类
+**** Comparing Files
+***** cmp()
+      ~cmp()~ 函数用来比较文件系统中的两个文件。 ~cmp()~ 函数中有一个 ~shallow~
+      参数，该参数默认为 True, 即只比较两个文件的元数据 (metadata,即创建时间，修
+      改时间，文件大小等),如果元数据相等，就认为它们相等，即使认为它们的内容不相
+      等。而将 ~shallow~ 参数设置为 False, 就会比较文件内容。
+***** cmpfiles()
+      如果想要以非递归的形式比较两个目录下的文件，可以使用 ~cmpfiles()~ 函数。而
+      ~cmpfiles()~ 的返回结果是三个列表，分别包含着相同的文件，不同的文件，以及
+      无法比较的文件。
+***** Comparing Directories
+      上面提到的函数都是用来进行简单的比较的，如果想要递归比较大目录，以及获取更
+      加详细的比较信息，那就需要使用 ~dircmp~ 类。
+****** report()
+       最简单的用法就是调用它的 ~report()~ 方法展示比较结果
+****** report_full_closure()
+       如果想要展示更加详细的信息，可以使用 ~report_full_closure()~ 方法
+***** Using Differences in a Program
+      ~dircmp~ 除了直接输出比较结果，还可以计算出供其他程序使用的文件列表
+****** left_list/right_list
+       目标目录包含的需要进行的文件和子目录都在 ~left_list~ 和 ~right_list~
+       列举出来
+****** common/left_only/right_only
+       相同的文件，只存在第一个目录，只存在第二个目录的文件分别在 ~common~,
+       ~left_only~ ~right_only~ 被列举出来
+****** common/common_dirs/common_files/common_funny
+       相同的部分 (包括文件和子目录), 相同的子目录，相同的文件，相同的 funny 部
+       分 (anything that has a different type in the two directories or where
+       there is an error from os.stat())
 ** Data Persistence and Exchange
 *** pickle -- Object Serialization
     对象序列化
