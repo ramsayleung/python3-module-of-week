@@ -63,15 +63,15 @@
       | \w   | alphanumeri                        |
       | \W   | non-alphanumeric                   |
       #+BEGIN_SRC python
-      test_patterns(
-	  'A prime #1 example!',
-	  [(r'\d+', 'sequence of digits'),
-	   (r'\D+', 'sequence of non-digits'),
-	   (r'\s+', 'sequence of whitespace'),
-	   (r'\S+', 'sequence of non-whitespace'),
-	   (r'\w+', 'alphanumeric characters'),
-	   (r'\W+', 'non-alphanumeric')],
-      )
+	test_patterns(
+	    'A prime #1 example!',
+	    [(r'\d+', 'sequence of digits'),
+	     (r'\D+', 'sequence of non-digits'),
+	     (r'\s+', 'sequence of whitespace'),
+	     (r'\S+', 'sequence of non-whitespace'),
+	     (r'\w+', 'alphanumeric characters'),
+	     (r'\W+', 'non-alphanumeric')],
+	)
 
       #+END_SRC
 ***** Anchoring
@@ -85,19 +85,19 @@
       | \B   | empty string not at the begining or end of a word |
       
       #+BEGIN_SRC python
-      from re_test_patterns import test_patterns
+	from re_test_patterns import test_patterns
 
-      test_patterns(
-	  'This is some text -- with punctuation.',
-	  [(r'^\w+', 'word at start of string'),
-	   (r'\A\w+', 'word at start of string'),
-	   (r'\w+\S*$', 'word near end of string'),
-	   (r'\w+\S*\Z', 'word near end of string'),
-	   (r'\w*t\w*', 'word containing t'),
-	   (r'\bt\w+', 't at start of word'),
-	   (r'\w+t\b', 't at end of word'),
-	   (r'\Bt\B', 't, not start or end of word')],
-      )
+	test_patterns(
+	    'This is some text -- with punctuation.',
+	    [(r'^\w+', 'word at start of string'),
+	     (r'\A\w+', 'word at start of string'),
+	     (r'\w+\S*$', 'word near end of string'),
+	     (r'\w+\S*\Z', 'word near end of string'),
+	     (r'\w*t\w*', 'word containing t'),
+	     (r'\bt\w+', 't at start of word'),
+	     (r'\w+t\b', 't at end of word'),
+	     (r'\Bt\B', 't, not start or end of word')],
+	)
 
       #+END_SRC
 ***** Flag Abbreviations
@@ -111,12 +111,12 @@
 ***** Named groups
       语法 (?P<name> pattern)
       #+BEGIN_SRC python
-      patterns = [
-	  r'^(?P<first_word>\w+)',
-	  r'(?P<last_word>\w+)\S*$',
-	  r'(?P<t_word>\bt\w+)\W+(?P<other_word>\w+)',
-	  r'(?P<ends_with_t>\w+t)\b',
-      ]
+	patterns = [
+	    r'^(?P<first_word>\w+)',
+	    r'(?P<last_word>\w+)\S*$',
+	    r'(?P<t_word>\bt\w+)\W+(?P<other_word>\w+)',
+	    r'(?P<ends_with_t>\w+t)\b',
+	]
       #+END_SRC
 ***** Looking Ahead of Behind 
 ****** look ahead 
@@ -142,17 +142,17 @@
 **** Basic Usage
      构造一个 enum 类，并迭代输出：
      #+BEGIN_SRC python
-     import enum
-     class BugStatus(enum.Enum):
-	 new = 7
-	 incomplete = 6
-	 invalid = 5
-	 wont_fix = 4
-	 in_progress = 3
-	 fix_committed = 2
-	 fix_released = 1
-     for status in BugStatus:
-	 print('{:15} = {}'.format(status.name, status.value))
+       import enum
+       class BugStatus(enum.Enum):
+	   new = 7
+	   incomplete = 6
+	   invalid = 5
+	   wont_fix = 4
+	   in_progress = 3
+	   fix_committed = 2
+	   fix_released = 1
+       for status in BugStatus:
+	   print('{:15} = {}'.format(status.name, status.value))
      #+END_SRC
      *enum.Enum* 的子类不方便进行比较，会出现 *TypeError* 异常，如果继承 *enum.IntEnum*
      就可以对常量类进行比较 (更像数字那样):
@@ -166,19 +166,19 @@
 **** Creating Enumerations Programmatically
      有时,程序化地创建常量类比硬编码要更好：
      #+BEGIN_SRC python
-     import enum
-     BugStatus = enum.Enum(
-	 value='BugStatus',
-	 names=[
-	     ('new', 7),
-	     ('incomplete', 6),
-	     ('invalid', 5),
-	     ('wont_fix', 4),
-	     ('in_progress', 3),
-	     ('fix_committed', 2),
-	     ('fix_released', 1),
-	 ],
-     )
+       import enum
+       BugStatus = enum.Enum(
+	   value='BugStatus',
+	   names=[
+	       ('new', 7),
+	       ('incomplete', 6),
+	       ('invalid', 5),
+	       ('wont_fix', 4),
+	       ('in_progress', 3),
+	       ('fix_committed', 2),
+	       ('fix_released', 1),
+	   ],
+       )
      #+END_SRC
 **** Non-integer Member Values
      或者你想创建值不是 *int* 的常量类 (其他复杂值):
@@ -415,7 +415,7 @@
      操作那一系列的数据，并且累加结果并且输出。一个可选的初始参数就是累加器的默认值，
      如果不指定，默认为 0
      #+BEGIN_SRC python
-     functools.reduce(a_callable_object,data,optional_argument)
+       functools.reduce(a_callable_object,data,optional_argument)
      #+END_SRC
 **** Generic Functions
      想 Python 这种动态语言是可以根据不同的参数类型执行不同的操作的，特别是操作一
@@ -487,16 +487,16 @@
       *accumulate()* 函数处理输入的迭代器，把第 n 个参数和第 n+1 个参数传递给一个
       函数并且输出函数调用结果，默认的函数时将两个参数相加
       #+BEGIN_SRC python
-      # accumulate([1,2,3,4,5]) --> 1 3 6 10 15
-      # accumulate('abcde') --> 'a', 'ab', 'abc', 'abcd', 'abcde'
+	# accumulate([1,2,3,4,5]) --> 1 3 6 10 15
+	# accumulate('abcde') --> 'a', 'ab', 'abc', 'abcd', 'abcde'
       #+END_SRC
       你也可以自定义函数并且传递给 *accumulate()*
 ***** product()
       如果要处理多个序列的迭代，你可以使用 *product()* 函数，该函数会计算输入参
       数的笛卡儿积
       #+BEGIN_SRC python
-      # product('ABCD', 'xy') --> Ax Ay Bx By Cx Cy Dx Dy
-      # product(range(2), repeat=3) --> 000 001 010 011 100 101 110 111
+	# product('ABCD', 'xy') --> Ax Ay Bx By Cx Cy Dx Dy
+	# product(range(2), repeat=3) --> 000 001 010 011 100 101 110 111
       #+END_SRC
 ***** permutations()
       *permutations* 函数可以计算输入迭代器的给定长度的排列组合，默认是计算全排列。
@@ -504,14 +504,14 @@
       combinations() 函数根据输入产生元素不重复的排列，只是输入都是唯一的，输出
       结果就不会重复
       #+BEGIN_SRC python
-      # combinations('ABCD', 2) --> AB AC AD BC BD CD
-      # combinations(range(4), 3) --> 012 013 023 123
+	# combinations('ABCD', 2) --> AB AC AD BC BD CD
+	# combinations(range(4), 3) --> 012 013 023 123
       #+END_SRC
 ***** combinations_with_replacement()
       *combinations()* 不会重复排列元素自身，但是 *combination_with_replacement()* 
       函数可以排列组合元素的时候，重复自身元素
       #+BEGIN_SRC python
-      # combinations_with_replacement('ABC', 2) --> AA AB AC BB BC CC
+	# combinations_with_replacement('ABC', 2) --> AA AB AC BB BC CC
       #+END_SRC
 *** operator -- Functional Interface to Built-in Operators
     内置操作符的函数接口 
@@ -612,8 +612,8 @@
      上下文管理器负责管理一个代码块的资源，在运行到代码块的时候创建资源，在离开
      代码块的时候关闭资源，例如：
      #+BEGIN_SRC python
-     with open('/tmp/pymotw.txt','wt')  as f:
-	  f.write('context go here')
+       with open('/tmp/pymotw.txt','wt')  as f:
+	    f.write('context go here')
      #+END_SRC
 ***** __enter__()
       当开始运行 *with* 里面的代码的时候，执行 *__enter__()*
@@ -640,10 +640,10 @@
      现预期的状态，或者是其他无关要紧的信息。忽略异常最常用的策略使用
      *try:except* 和 *pass*:
      #+BEGIN_SRC python
-     try:
-	 dothing_raise_error()
-     except Exception:
-	 pass
+       try:
+	   dothing_raise_error()
+       except Exception:
+	   pass
      #+END_SRC
      你也可以使用 *contextlib.suppress()* 函数指定 *with* 代码中需要忽略的异常
 **** Redirecting Output Streams
@@ -1135,6 +1135,62 @@
 **** Temporary File Location
      如果没有显式指定 ~dir~ 参数，函数使用临时路径就取决于程序运行的平台和设置。
      在 *tempfile* 模块，可以使用 ~gettempdir()~ 和 ~gettempprefix()~ 函数查询和获取相关的设置
+     
+*** shutil -- High-level File operations
+    目的：高层次的文件操作
+    
+    *shutil* 模块包含许多高层次的文件操作，例如进行负责和归档
+**** Copying Files
+***** copyfile()
+      ~copyfile()~ 函数把目标文件内容复制到目标路径，如果没有权限写入目标路径的
+      话，就会抛出一个 IOError 异常。而 Unix 系统的设备文件是不能使用
+      ~copyfile()~ 函数进行复制的。
+***** copy()
+      ~copy()~ 函数就像 Unix 系统上的 cp 命令一样工作，如果目标路径是一个目录而
+      不是一个文件的话，一个新的文件就会在该目录并创建，文件名与源文件名一致。
+***** copy2()
+      ~copy2()~ 函数就像 ~copy()~ 函数那样进行操作，不过 ~copy2()~ 函数还包含着
+      获取以及修改新的文件的时间。
+**** Copying File Metadata
+***** copymode()
+      默认情况下，在 Unix 下创建一个新的文件，Unix 会根据用户的 umask 值设定对应
+      的权限。如果想把权限从一个文件复制到另外一个文件，可以使用 ~copymode()~ 函数
+***** copystat()
+      如果想要复制文件其他的元数据 (metadata), 可以使用 copystat() 函数。
+**** Working with Directory Trees
+     *shutil* 模块包含着三个函数来操作目录树。
+***** copytree()
+      如果想要把目录从一个路径复制到另外一个路径，可以使用 ~copytree()~ 函数。它
+      会递归复制源目录，然后复制到目标目录。而目标目录此前必需不存在。
+***** rmtree()
+      如果想要删除一个目录和它的内容的话，可以使用 ~rmtree()~ 函数。
+***** move()
+      如果想要把一个文件或者目录从一个路径移动到另外一个路径，可以使用 ~move()~
+      函数，它类似于 Unix 上的 mv 命令。如果源路径和目标路径都在同一个目录，文件
+      就会被重命名。
+**** Finding Files
+***** which()
+      ~which()~ 函数在一个搜索路径下寻找一个指定的文件。比较典型的用法就是在
+      shell 的定义在环境变量 PATH 搜索可执行文件。如果没找到相应的文件，
+      ~which()~ 返回 None
+**** Archives
+***** get_archive_format()
+      Python 的标准库包含了很多用来管理归档文件 (例如 tarfile 或者是 zipfile) 的
+      模块。在 *shutil* 模块有若干高层次的函数可以用来创建和解开
+      ~shutil.get_archive_format()~ 函数返回的当前系统所支持的归档文件
+***** make_archive()
+      使用 ~make_archive()~ 函数来创建归档文件。它可以对整个目录以及它全部的内容
+      进行归档。默认进行归档的目录是当前目录
+***** get_unpack_format()
+      通过调用 ~get_unpack_format()~ 函数可以获取当前系统支持进行解压的归档格式。
+***** unpack_archive()
+      可以使用 ~unpack_archive()~ 函数进行解压，传入需要解压的文件名，以及解压的目标路
+      径，如果目标路径没有给出来，那就解压到当前路径。
+**** File System Space
+     有时候需要在执行那些耗费大量磁盘空间的操作之前查看当前文件系统的可用空间，
+     而 ~disk_usage()~ 函数以元组的形式返回磁盘总空间，当前已使用空间，以及可用
+     空间。
+
 ** Data Persistence and Exchange
 *** pickle -- Object Serialization
     对象序列化
@@ -1652,4 +1708,5 @@
 **** Time Zones
      就 *datetime* 类而言， 时区是通过它的子类 *tzinfo* 来表示的。因为 tzinfo 是
      一个抽象的积累，所以程序需要第一个子类，并且实现相应的方法才能使用它。 
+     
      
