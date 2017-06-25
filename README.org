@@ -1267,6 +1267,53 @@
      marker) BOM 作为被编码数据最开始的字节。例如 UTF_16 定义的 0xFFFE 和0xFEFF
      都不是有效的字符，它们使用表示字节顺序的。 *codecs* 定义了用于表示 UTF-16
      和 UTF-32的字节顺序标记符的常量。
+**** Error Handling
+     在读写 Unicode 文件的时候，需要知道正在使用的编码。设定正确的编码是非常重要
+     的，因为如果当读文件的时候，没有正确配置编码，数据就可能没有办法正确被解析
+     或者是崩了，抑或者无法正确地解码。并不是所有的 Unicode 字符都可以表示在所有
+     的编码中的，所以如果在进行写操作的时候使用了错误的编码，就会产生一个新的错
+     误，数据就可能丢失。*codecs* 模块使用与提供给 str 的 encode() 方法，以及与
+     bytes decode()方法一样的五个错误处理选项，如下：
+     | Error Mode        | Description                                                             |
+     |-------------------+-------------------------------------------------------------------------|
+     | strict            | Raises an exception if the data cannot be converted.                    |
+     | replace           | Substitutes a special marker character for data that cannot be encoded. |
+     | ignore            | Skips the data.                                                         |
+     | xmlcharrefreplace | XML character (encoding only)                                           |
+     | backslashreplace  | escape sequence (encoding only)                                         |
+***** Encoding Errors
+      最常见引起错误的条件是把 Unicode 数据写入到 ASCII 编码的数据流中，然后抛出
+      UnicodeEncodeError, 例如一个常规的文件或者是 ~sys.stdout~ 没有足够壮健的编
+      码集。
+****** strict mode
+       /strict mode/ 可能是保证一个程序为所有的 IO 操作设定编码的最安全的模式，
+       在编码出错的时候，它会让程序崩溃
+****** replace mode
+       可能其他的模式会更加灵活。例如 /replace mode/ 可以保证不会出现错误，但是
+       需要付出相应的代价 -- 无法编码的数据可能会丢失。
+****** ignore mode
+       如果想要忽略无法编码的数据，可以使用 /ignore mode/. 所有无法编码的数据都
+       会丢失。
+****** xmlcharrefreplace
+       有两种不会无损数据的错误处理选项，这两个选项都是使用另外的可替换的方式的
+       来表示数据。 /xmlcharrefreplace mode/ 使用 XML 字符引用来代替无法进行编码
+       的数据。
+****** backslashreplace
+       另外一种无损数据的错误处理就是 /backslashreplace mode/, 它输出像使用
+       ~repr()~ 来表示 unicode 对象那样的格式。 unicode 字符都被替换成 \u 后接16
+       进制编码的形式
+***** Decoding Errors
+      当然，也有可能在解码的时候出现错误，特别是使用了错误的编码的时候。
+****** strict mode
+       像编码时候一样，如果字节流无法被正确解码，/strict mode/ 就会通过抛出一个
+       异常来处理错误。在这种情况下，使用 UTF-8 解码器来解码 UTF-16 BOM 就会导致
+       UnicodeDecodeError
+****** ignore mode
+       /ignore mode/ 会忽略那些无效的字节。可能最终解码的结果与预期并不一致，因为
+       它可能包含一些空字节
+****** replace mode
+       在 /replace mode/ 无效的字节都会被 \uFFFD 所替换，这是官方使用的替代字符，
+       它可能看起来像包含着一个白色问号的黑色的菱形。
 ** Data Persistence and Exchange
 *** pickle -- Object Serialization
     对象序列化
